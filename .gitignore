@@ -1,0 +1,15 @@
+# Terraform
+infra/.terraform/
+infra/terraform.tfvars
+infra/*.auto.tfvars
+infra/override.tf
+infra/override.tf.json
+infra/*_override.tf
+infra/*_override.tf.json
+infra/*.tfplan
+infra/*.tfstate
+infra/*.tfstate.backup
+infra/crash.log
+
+# OS
+.DS_Store
