@@ -6,9 +6,13 @@ articles from all media sources configured in sources.yaml.
 """
 
 import logging
+from datetime import datetime, timezone
+
 import azure.functions as func
 
 from collector import run_collection
+from freshness import check
+from storage import StorageWriter
 
 app = func.FunctionApp()
 
@@ -45,3 +49,18 @@ def collect_feeds(timer: func.TimerRequest) -> None:
     except Exception as e:
         logger.error("Collection failed with unhandled exception: %s", e, exc_info=True)
         raise
+
+
+@app.timer_trigger(
+    schedule="0 30 7 * * *",  # Every day at 07:30 UTC, after the Databricks job
+    arg_name="timer",
+    run_on_startup=False,
+)
+def check_snapshot_freshness(timer: func.TimerRequest) -> None:
+    """Log a STALE SNAPSHOT error (alerted on in App Insights) if today's snapshot is missing."""
+    snapshot = StorageWriter.from_env().read_json("$web", "snapshot.json")
+    reason = check(snapshot, datetime.now(timezone.utc))
+    if reason:
+        logger.error("STALE SNAPSHOT: %s", reason)
+    else:
+        logger.info("Snapshot is fresh")
