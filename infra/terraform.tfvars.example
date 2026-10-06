@@ -9,3 +9,4 @@ environment     = "prod"
 enable_functions = false  # requires App Service VM quota
 enable_cdn      = false
 databricks_sku  = "premium"
+alert_email     = ""        # Receives monitoring alerts

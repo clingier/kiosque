@@ -43,3 +43,8 @@ variable "databricks_sku" {
   type        = string
   default     = "premium"
 }
+
+variable "alert_email" {
+  description = "Email address that receives monitoring alerts"
+  type        = string
+}

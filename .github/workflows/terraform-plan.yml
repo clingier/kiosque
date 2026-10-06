@@ -21,6 +21,7 @@ env:
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_USE_OIDC: true      # federated credentials, no client secret needed
   TF_VAR_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
 
 jobs:
   plan:
