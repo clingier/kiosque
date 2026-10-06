@@ -10,16 +10,20 @@ from kiosque_pipeline.config import validate_config
 from kiosque_pipeline.context import JobContext
 from kiosque_pipeline.tables import write_full
 
-SOURCES_SCHEMA = "slug string, name string, owner_group string, influence string"
-GROUPS_SCHEMA = "id string, label string, major boolean"
+# position keeps the YAML order, which the published snapshot preserves (majors first in groups.yaml).
+SOURCES_SCHEMA = "position int, slug string, name string, owner_group string, influence string"
+GROUPS_SCHEMA = "position int, id string, label string, major boolean"
 
 
 def run(ctx: JobContext) -> dict:
     validate_config(ctx.sources, ctx.groups)
     sources = ctx.spark.createDataFrame(
-        [(s["slug"], s["name"], s["owner_group"], s.get("influence")) for s in ctx.sources], SOURCES_SCHEMA
+        [(i, s["slug"], s["name"], s["owner_group"], s.get("influence")) for i, s in enumerate(ctx.sources)],
+        SOURCES_SCHEMA,
     )
-    groups = ctx.spark.createDataFrame([(g["id"], g["label"], bool(g["major"])) for g in ctx.groups], GROUPS_SCHEMA)
+    groups = ctx.spark.createDataFrame(
+        [(i, g["id"], g["label"], bool(g["major"])) for i, g in enumerate(ctx.groups)], GROUPS_SCHEMA
+    )
     write_full(sources, ctx, "ref", "sources")
     write_full(groups, ctx, "ref", "groups")
     return {"sources": len(ctx.sources), "groups": len(ctx.groups)}

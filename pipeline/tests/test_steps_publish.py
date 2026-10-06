@@ -87,3 +87,13 @@ def test_rerun_is_idempotent(sctx):
     publish.run(sctx, now=NOW)
     rows = snapshot_row(sctx)
     assert len(rows) == 1 and rows[0].snapshot_json == first
+
+
+def test_groups_and_media_keep_config_order(sctx):
+    # The frontend relies on config order (majors first in groups.yaml), as build_snapshot did.
+    build_day(sctx)
+    publish.run(sctx, now=NOW)
+    doc = json.loads(snapshot_row(sctx)[0].snapshot_json)
+    assert [g["id"] for g in doc["groups"]] == [g["id"] for g in sctx.groups]
+    assert [m["slug"] for m in doc["media"]] == [s["slug"] for s in sctx.sources]
+    assert set(doc["media"][0]) == {"slug", "name", "owner_group", "influence"}

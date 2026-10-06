@@ -165,6 +165,8 @@ databricks bundle deploy -t prod --var alert_email=<email>
 
 **Relancer une journée** : `databricks bundle run kiosque_daily -t prod --params run_date=YYYY-MM-DD`. Le job est idempotent : il réécrit les fichiers du jour. Si `raw/feeds/<date>/_report.json` manque, relancer d'abord la collecte (portail Azure → Function → `collect_feeds` → Exécuter).
 
+**Secrets CI (GitHub)** : `ARM_CLIENT_ID`, `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID`, `ALERT_EMAIL`, `DATABRICKS_HOST`, et `PIPELINE_PRINCIPALS` — une liste JSON (ex. `["you@example.com"]`) des identités qui exécutent le job. Les droits du catalogue `kiosque` sont **autoritaires** : toute identité absente de la liste perd son accès.
+
 **Ajouter un média** : ajouter l'entrée dans `config/sources.yaml` avec un `owner_group` présent dans `config/groups.yaml`. Les tests échouent sinon.
 
 **En local** :

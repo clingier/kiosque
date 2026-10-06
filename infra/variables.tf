@@ -50,6 +50,14 @@ variable "alert_email" {
 }
 
 variable "pipeline_principals" {
-  description = "Users or service principal application IDs that run the Databricks job (granted read/write on catalog kiosque)"
+  description = "Users (email) or service principal application IDs (GUID) that run the Databricks job. AUTHORITATIVE: anyone not listed loses their grants on catalog kiosque. In CI, set secret PIPELINE_PRINCIPALS to a JSON list, e.g. [\"you@example.com\"]."
   type        = list(string)
+
+  validation {
+    condition = length(var.pipeline_principals) > 0 && alltrue([
+      for p in var.pipeline_principals :
+      can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", p)) || can(regex("^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$", p))
+    ])
+    error_message = "pipeline_principals must list at least one user email or service principal application ID (GUID). The catalog grants are authoritative, so a missing or malformed entry would revoke access."
+  }
 }

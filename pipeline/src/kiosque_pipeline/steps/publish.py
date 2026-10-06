@@ -37,11 +37,25 @@ def snapshot_frame(ctx: JobContext, generated_at: str) -> DataFrame:
     collection = read_day(ctx, "bronze", "collections").select(
         F.struct("total_sources", "success_count", "failed").alias("collection")
     )
+    # Config order (ref.*.position), as the reference build_snapshot published it.
     groups = spark.table(table(ctx, "ref", "groups")).agg(
-        F.array_sort(F.collect_list(F.struct("id", "label", "major")), _by("id")).alias("groups")
+        F.transform(
+            F.array_sort(F.collect_list(F.struct("position", "id", "label", "major")), _by("position")),
+            lambda g: F.struct(g["id"].alias("id"), g["label"].alias("label"), g["major"].alias("major")),
+        ).alias("groups")
     )
     media = spark.table(table(ctx, "ref", "sources")).agg(
-        F.array_sort(F.collect_list(F.struct("slug", "name", "owner_group", "influence")), _by("slug")).alias("media")
+        F.transform(
+            F.array_sort(
+                F.collect_list(F.struct("position", "slug", "name", "owner_group", "influence")), _by("position")
+            ),
+            lambda m: F.struct(
+                m["slug"].alias("slug"),
+                m["name"].alias("name"),
+                m["owner_group"].alias("owner_group"),
+                m["influence"].alias("influence"),
+            ),
+        ).alias("media")
     )
     date_str = F.date_format("date", TS)
     articles = (
