@@ -49,3 +49,13 @@ def seed_bronze(ctx, articles: list[dict]) -> None:
         F.try_to_timestamp("date", F.lit(TS)).alias("date"), "source_method",
     )
     write_day(df, ctx, "bronze", "articles")
+
+
+def seed_stories(ctx, stories: list[dict]) -> None:
+    from pyspark.sql import functions as F
+
+    from kiosque_pipeline.tables import write_day
+
+    rows = [(s["id"], s["title"], aid) for s in stories for aid in s["article_ids"]]
+    df = ctx.spark.createDataFrame(rows, "story_id string, title string, article_id string")
+    write_day(df.select(F.to_date(F.lit(ctx.run_date)).alias("run_date"), "story_id", "title", "article_id"), ctx, "silver", "stories")
