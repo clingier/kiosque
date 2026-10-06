@@ -26,6 +26,10 @@ class TestLocalStorage:
     def test_list_missing_prefix_is_empty(self, tmp_path):
         assert LocalStorage(tmp_path).list("raw/feeds/1999-01-01") == []
 
+    def test_write_text_is_byte_exact(self, tmp_path):
+        LocalStorage(tmp_path).write_text("$web/snapshot.json", '{"a":"é"}')
+        assert (tmp_path / "$web" / "snapshot.json").read_bytes() == '{"a":"é"}'.encode("utf-8")
+
 
 class TestBlobStorage:
     def _storage_with(self, container_client):
@@ -55,4 +59,11 @@ class TestBlobStorage:
         _, kwargs = cc.upload_blob.call_args
         assert kwargs["overwrite"] is True
         assert kwargs["content_settings"].content_type == "application/json; charset=utf-8"
+        assert kwargs["content_settings"].cache_control == "public, max-age=300"
+
+    def test_write_text_uploads_exact_bytes(self):
+        cc = MagicMock()
+        self._storage_with(cc).write_text("$web/snapshot.json", '{"a":"é"}', cache_control="public, max-age=300")
+        args, kwargs = cc.upload_blob.call_args
+        assert args[1] == '{"a":"é"}'.encode("utf-8")
         assert kwargs["content_settings"].cache_control == "public, max-age=300"

@@ -30,6 +30,11 @@ class LocalStorage:
         full_path.parent.mkdir(parents=True, exist_ok=True)
         full_path.write_text(_dumps(data), encoding="utf-8")
 
+    def write_text(self, path: str, text: str, cache_control: str | None = None) -> None:
+        full_path = self.root / path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        full_path.write_bytes(text.encode("utf-8"))
+
     def exists(self, path: str) -> bool:
         return (self.root / path).is_file()
 
@@ -61,6 +66,17 @@ class BlobStorage:
         container_client.upload_blob(
             blob,
             _dumps(data).encode("utf-8"),
+            overwrite=True,
+            content_settings=ContentSettings(content_type=CONTENT_TYPE_JSON, cache_control=cache_control),
+        )
+
+    def write_text(self, path: str, text: str, cache_control: str | None = None) -> None:
+        from azure.storage.blob import ContentSettings
+
+        container_client, blob = self._split(path)
+        container_client.upload_blob(
+            blob,
+            text.encode("utf-8"),
             overwrite=True,
             content_settings=ContentSettings(content_type=CONTENT_TYPE_JSON, cache_control=cache_control),
         )
