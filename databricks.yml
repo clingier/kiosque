@@ -34,10 +34,12 @@ resources:
           default: ""
         - name: config_dir
           default: ${workspace.file_path}/config
+        - name: catalog
+          default: kiosque
       job_clusters:
         - job_cluster_key: single_node
           new_cluster:
-            spark_version: 16.4.x-cpu-ml-scala2.12
+            spark_version: 18.x-cpu-ml-scala2.13
             node_type_id: Standard_D4ds_v5
             num_workers: 0
             data_security_mode: SINGLE_USER
@@ -47,7 +49,15 @@ resources:
             custom_tags:
               ResourceClass: SingleNode
       tasks:
+        - task_key: ref
+          job_cluster_key: single_node
+          notebook_task:
+            notebook_path: ./notebooks/00_ref.py
+          libraries:
+            - whl: ./pipeline/dist/*.whl
         - task_key: normalize
+          depends_on:
+            - task_key: ref
           job_cluster_key: single_node
           notebook_task:
             notebook_path: ./notebooks/01_normalize.py

@@ -1,21 +1,22 @@
-"""run.py — Run every step for one day, in order (local runs and tests)."""
+"""run.py — Run every Spark step for one day, in order (local runs and tests)."""
 
 from datetime import datetime
 
-from kiosque_pipeline import cluster, metrics, normalize, ownership, publish
+from kiosque_pipeline.cluster import DEFAULT_DISTANCE_THRESHOLD
 from kiosque_pipeline.context import JobContext
-from kiosque_pipeline.embed import Embedder
+from kiosque_pipeline.steps import cluster, metrics, normalize, ownership, publish, ref
 
 
 def run_all(
     ctx: JobContext,
-    embedder: Embedder,
+    embedder_factory,
     now: datetime | None = None,
-    distance_threshold: float = cluster.DEFAULT_DISTANCE_THRESHOLD,
+    distance_threshold: float = DEFAULT_DISTANCE_THRESHOLD,
 ) -> dict:
     return {
+        "ref": ref.run(ctx),
         "normalize": normalize.run(ctx),
-        "cluster": cluster.run(ctx, embedder, distance_threshold),
+        "cluster": cluster.run(ctx, embedder_factory, distance_threshold),
         "ownership": ownership.run(ctx),
         "metrics": metrics.run(ctx),
         "publish": publish.run(ctx, now=now),

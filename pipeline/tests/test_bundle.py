@@ -6,7 +6,7 @@ from conftest import REPO_ROOT
 
 BUNDLE = yaml.safe_load((REPO_ROOT / "databricks.yml").read_text(encoding="utf-8"))
 JOB = BUNDLE["resources"]["jobs"]["kiosque_daily"]
-EXPECTED = ["normalize", "cluster", "ownership", "metrics", "publish"]
+EXPECTED = ["ref", "normalize", "cluster", "ownership", "metrics", "publish"]
 
 
 def test_tasks_are_chained_in_order():
@@ -38,3 +38,12 @@ def test_prod_target_pins_a_shared_root_path():
     # the CI service principal deploy the same single copy.
     root_path = BUNDLE["targets"]["prod"]["workspace"]["root_path"]
     assert root_path == "/Workspace/Shared/.bundle/${bundle.name}/${bundle.target}"
+
+
+def test_runs_on_spark_4_lts_ml():
+    [cluster] = JOB["job_clusters"]
+    assert cluster["new_cluster"]["spark_version"] == "18.x-cpu-ml-scala2.13"
+
+
+def test_catalog_is_a_job_parameter():
+    assert {"name": "catalog", "default": "kiosque"} in JOB["parameters"]
