@@ -1,7 +1,4 @@
-import pytest
-
-from kiosque_pipeline import layers
-from kiosque_pipeline.metrics import blind_spot, day_kpis, hhi, owner_key, run, story_metrics
+from kiosque_pipeline.metrics import blind_spot, day_kpis, hhi, owner_key, story_metrics
 from conftest import RUN_DATE, SOURCES
 
 MAJORS = {"bollore", "niel", "bouygues", "arnault", "kretinsky", "saade"}
@@ -85,17 +82,3 @@ def test_day_kpis():
 
 def test_day_kpis_empty_day():
     assert day_kpis([], [], BY_SLUG)["median_hhi"] is None
-
-
-def test_run_writes_gold(ctx):
-    ctx.storage.write_json(layers.bronze_articles(RUN_DATE), {
-        "articles": [{"media": "cnews"}, {"media": "le-monde"}],
-        "collection": {"total_sources": 2, "success_count": 2, "failed": []},
-    })
-    ctx.storage.write_json(layers.silver_enriched(RUN_DATE), {"stories": [
-        {"id": f"{RUN_DATE}-001", "title": "t", "articles": [art("cnews", "bollore"), art("le-monde", "niel")]},
-    ]})
-    assert run(ctx) == {"stories": 1, "blind_spots": 0}
-    gold = ctx.storage.read_json(layers.gold_metrics(RUN_DATE))
-    assert gold["kpis"]["stories"] == 1
-    assert gold["collection"]["success_count"] == 2

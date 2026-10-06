@@ -7,7 +7,6 @@ Lineage keeps the bronze → silver edge; column lineage stops at the model.
 """
 
 import pandas as pd
-from pyspark.sql import functions as F
 
 from kiosque_pipeline.cluster import DEFAULT_DISTANCE_THRESHOLD, build_stories, cluster_labels
 from kiosque_pipeline.context import JobContext

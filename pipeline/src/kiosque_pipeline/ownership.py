@@ -6,8 +6,6 @@ owner_group (capital ownership, from sources.yaml) and optional influence
 network (qualitative signal only, never used in metrics).
 """
 
-from kiosque_pipeline import layers
-from kiosque_pipeline.context import JobContext
 
 
 def enrich(stories: list[dict], articles: list[dict], sources_by_slug: dict[str, dict]) -> list[dict]:
@@ -29,11 +27,3 @@ def enrich(stories: list[dict], articles: list[dict], sources_by_slug: dict[str,
         story_articles.sort(key=lambda x: (x["date"] or "", x["media"]))
         enriched.append({"id": story["id"], "title": story["title"], "articles": story_articles})
     return enriched
-
-
-def run(ctx: JobContext) -> dict:
-    articles = ctx.storage.read_json(layers.bronze_articles(ctx.run_date))["articles"]
-    stories = ctx.storage.read_json(layers.silver_stories(ctx.run_date))["stories"]
-    enriched = enrich(stories, articles, ctx.sources_by_slug)
-    ctx.storage.write_json(layers.silver_enriched(ctx.run_date), {"run_date": ctx.run_date, "stories": enriched})
-    return {"stories": len(enriched)}

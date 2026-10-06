@@ -1,7 +1,6 @@
 import pytest
 
-from kiosque_pipeline import layers
-from kiosque_pipeline.ownership import enrich, run
+from kiosque_pipeline.ownership import enrich
 from conftest import RUN_DATE, SOURCES
 
 BY_SLUG = {s["slug"]: s for s in SOURCES}
@@ -26,10 +25,3 @@ def test_enrich_attaches_owner_and_influence():
 def test_enrich_unknown_article_id_raises():
     with pytest.raises(KeyError):
         enrich([{"id": "s", "title": "t", "article_ids": ["missing"]}], ARTICLES, BY_SLUG)
-
-
-def test_run_writes_enriched(ctx):
-    ctx.storage.write_json(layers.bronze_articles(RUN_DATE), {"articles": ARTICLES})
-    ctx.storage.write_json(layers.silver_stories(RUN_DATE), {"stories": STORIES})
-    assert run(ctx) == {"stories": 1}
-    assert ctx.storage.read_json(layers.silver_enriched(RUN_DATE))["run_date"] == RUN_DATE

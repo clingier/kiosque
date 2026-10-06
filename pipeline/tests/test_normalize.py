@@ -1,12 +1,8 @@
 from datetime import datetime, timezone
 
-import pytest
-
-from kiosque_pipeline import layers
 from kiosque_pipeline.normalize import (
-    RawDataMissing, canonical_url, clean_title, normalize_articles, run,
+    canonical_url, clean_title, normalize_articles,
 )
-from conftest import RUN_DATE
 
 REF = datetime(2026, 10, 6, 6, 4, 0, tzinfo=timezone.utc)
 
@@ -81,32 +77,3 @@ class TestNormalizeArticles:
         assert set(out[0]) == {"id", "media", "title", "url", "date", "source_method"}
         assert out[0]["source_method"] == "gnews"
         assert len(out[0]["id"]) == 16
-
-
-class TestRun:
-    def _write_report(self, ctx, failed=()):
-        ctx.storage.write_json(layers.raw_report(RUN_DATE), {
-            "finished_at": "2026-10-06T06:04:00Z", "total_sources": 3, "success_count": 3 - len(failed),
-            "sources": [{"slug": s, "status": "error"} for s in failed] + [{"slug": "cnews", "status": "ok"}],
-        })
-
-    def test_missing_report_raises(self, ctx):
-        with pytest.raises(RawDataMissing):
-            run(ctx)
-
-    def test_empty_day(self, ctx):
-        self._write_report(ctx, failed=("le-monde", "tf1-info"))
-        assert run(ctx) == {"articles": 0}
-        bronze = ctx.storage.read_json(layers.bronze_articles(RUN_DATE))
-        assert bronze["articles"] == []
-        assert bronze["collection"] == {"total_sources": 3, "success_count": 1, "failed": ["le-monde", "tf1-info"]}
-
-    def test_reads_raw_files_and_writes_bronze(self, ctx):
-        self._write_report(ctx)
-        ctx.storage.write_json(f"{layers.raw_dir(RUN_DATE)}/cnews.json",
-                               raw("cnews", [art("Budget : les principales mesures dévoilées", "https://www.cnews.fr/a")]))
-        assert run(ctx) == {"articles": 1}
-        bronze = ctx.storage.read_json(layers.bronze_articles(RUN_DATE))
-        assert bronze["run_date"] == RUN_DATE
-        assert bronze["reference_time"] == "2026-10-06T06:04:00Z"
-        assert bronze["articles"][0]["media"] == "cnews"

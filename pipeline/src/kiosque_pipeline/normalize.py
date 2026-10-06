@@ -11,8 +11,6 @@ import logging
 from datetime import datetime, timedelta
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from kiosque_pipeline import layers
-from kiosque_pipeline.context import JobContext
 
 logger = logging.getLogger(__name__)
 
@@ -84,31 +82,3 @@ def normalize_articles(raw_files: list[dict], reference_time: datetime, known_sl
             if existing is None or (date is not None and (existing["date"] is None or date < existing["date"])):
                 by_url[url] = candidate
     return sorted(by_url.values(), key=lambda a: (a["media"], a["url"]))
-
-
-def run(ctx: JobContext) -> dict:
-    report_path = layers.raw_report(ctx.run_date)
-    if not ctx.storage.exists(report_path):
-        raise RawDataMissing(f"{report_path} not found — did the collector run on {ctx.run_date}?")
-    report = ctx.storage.read_json(report_path)
-
-    raw_files = [
-        ctx.storage.read_json(path)
-        for path in ctx.storage.list(layers.raw_dir(ctx.run_date))
-        if not path.endswith("/_report.json")
-    ]
-    reference_time = _parse_ts(report["finished_at"])
-    articles = normalize_articles(raw_files, reference_time, set(ctx.sources_by_slug))
-
-    ctx.storage.write_json(layers.bronze_articles(ctx.run_date), {
-        "run_date": ctx.run_date,
-        "reference_time": reference_time.strftime(TS_FORMAT),
-        "collection": {
-            "total_sources": report["total_sources"],
-            "success_count": report["success_count"],
-            "failed": sorted(s["slug"] for s in report["sources"] if s["status"] == "error"),
-        },
-        "articles": articles,
-    })
-    logger.info("Normalized %d articles from %d raw files", len(articles), len(raw_files))
-    return {"articles": len(articles)}

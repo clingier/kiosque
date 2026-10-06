@@ -29,14 +29,14 @@ Le site est consultable vers 06h45.
 
 ```
 Sources RSS ──► Azure Functions ──► ADLS Gen2 ──► Databricks ──► snapshot.json ──► Blob Static Website ──► CDN
-                (collecte)          (medallion)    (5 notebooks)   (gold)           ($web container)
+                (collecte)          (medallion)    (6 notebooks)   (gold)           ($web container)
 ```
 
 | Composant | Service | Détail |
 |-----------|---------|--------|
 | Ingestion | Azure Functions (Consumption, Python) | Timer trigger, ~65 sources, async |
 | Stockage | ADLS Gen2 | Medallion : raw → bronze → silver → gold |
-| Traitement | Databricks Workflow | 5 notebooks chaînés, single-node job cluster |
+| Traitement | Databricks Workflow + Unity Catalog | 6 notebooks Spark (DBR 18 LTS ML), tables Delta gérées dans le catalogue kiosque, lignage de raw à gold |
 | Frontend | Azure Blob Static Website + CDN | Fichier HTML unique, routing CSS pur, 0 build step |
 | Monitoring | Application Insights | Alertes : workflow échoué, sources en erreur, snapshot périmé |
 
@@ -59,7 +59,7 @@ kiosque/
 │   │   ├── normalize.py  cluster.py  ownership.py  metrics.py  publish.py
 │   │   └── snapshot.schema.json   # Contrat snapshot.json (frontend)
 │   └── tests/
-├── notebooks/              # 01_normalize … 05_publish (wrappers Databricks)
+├── notebooks/              # 00_ref … 05_publish (wrappers Databricks)
 ├── frontend/               # kiosque.html (à venir)
 ├── config/
 │   ├── sources.yaml        # Médias, flux, groupe propriétaire
@@ -144,6 +144,7 @@ databricks bundle deploy -t prod --var alert_email=<email>
 - **HHI** (Herfindahl-Hirschman Index) : concentration **capitalistique** par sujet, calculée sur les médias distincts (pas le nombre d'articles). Chaque média indépendant compte comme un propriétaire distinct ; le service public compte comme un seul. 0 = diversité totale, 10 000 = monopole. Ne mesure que la propriété — jamais la tendance éditoriale.
 - **Angle mort** : `single_group` (tous les médias appartiennent au même groupe, hors indépendants) ou `ignored_by_majors` (≥ 3 médias, aucun des six grands groupes).
 - **Part du dominant** : pourcentage d'articles d'un sujet provenant du groupe le plus représenté.
+- **Lignage (audit)** : chaque métrique publiée est traçable dans Unity Catalog jusqu'aux fichiers bruts du collecteur (`kiosque.raw.feeds`) et à la table de propriété `kiosque.ref.sources`.
 - **Tendance** : axe éditorial non suivi par Kiosque — impossible à sourcer objectivement. Seule la propriété est mesurée.
 
 ## Principes
@@ -170,7 +171,8 @@ databricks bundle deploy -t prod --var alert_email=<email>
 
 ```bash
 python run_local.py --limit 5                   # → output/raw/feeds/<date>/
-pip install -e "pipeline[embed]"
+brew install openjdk@21                         # Spark 4 requiert Java 17 ou 21
+pip install -e "pipeline[spark,embed]"
 python run_pipeline.py                          # → output/$web/snapshot.json
 ```
 

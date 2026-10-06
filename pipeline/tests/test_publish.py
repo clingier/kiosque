@@ -1,10 +1,5 @@
 from datetime import datetime, timezone
 
-import jsonschema
-import pytest
-
-from kiosque_pipeline import layers
-from kiosque_pipeline.publish import run
 from kiosque_pipeline.snapshot import build_snapshot, validate
 from conftest import RUN_DATE, SOURCES
 
@@ -36,36 +31,3 @@ def test_build_snapshot_is_valid(groups):
     va = next(m for m in snap["media"] if m["slug"] == "valeurs-actuelles")
     assert va == {"slug": "valeurs-actuelles", "name": "Valeurs actuelles", "owner_group": "independant",
                   "influence": "sterin-pericles"}
-
-
-def test_publish_writes_all_three_copies(ctx):
-    ctx.storage.write_json(layers.gold_metrics(RUN_DATE), METRICS)
-    result = run(ctx, now=NOW)
-    assert result["published"] == [layers.gold_snapshot(RUN_DATE), layers.web_archive(RUN_DATE), layers.WEB_LATEST]
-    assert ctx.storage.read_json(layers.WEB_LATEST) == ctx.storage.read_json(layers.gold_snapshot(RUN_DATE))
-
-
-def test_publish_with_no_stories(ctx):
-    empty = {**METRICS, "stories": [], "kpis": {**METRICS["kpis"], "stories": 0, "median_hhi": None}}
-    ctx.storage.write_json(layers.gold_metrics(RUN_DATE), empty)
-    assert run(ctx, now=NOW)["stories"] == 0
-    assert ctx.storage.read_json(layers.WEB_LATEST)["stories"] == []
-
-
-def test_invalid_snapshot_is_never_published(ctx):
-    broken = {**METRICS, "stories": [{**METRICS["stories"][0], "blind_spot": "editorial"}]}
-    ctx.storage.write_json(layers.gold_metrics(RUN_DATE), broken)
-    with pytest.raises(jsonschema.ValidationError):
-        run(ctx, now=NOW)
-    assert not ctx.storage.exists(layers.WEB_LATEST)
-
-
-def test_backfill_does_not_replace_newer_live_snapshot(ctx):
-    ctx.storage.write_json(layers.WEB_LATEST, {"date": "2026-10-07"})
-    ctx.storage.write_json(layers.gold_metrics(RUN_DATE), METRICS)
-
-    result = run(ctx, now=NOW)
-
-    assert ctx.storage.read_json(layers.WEB_LATEST) == {"date": "2026-10-07"}
-    assert result["published"] == [layers.gold_snapshot(RUN_DATE), layers.web_archive(RUN_DATE)]
-    assert ctx.storage.read_json(layers.web_archive(RUN_DATE))["date"] == RUN_DATE

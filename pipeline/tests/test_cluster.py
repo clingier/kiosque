@@ -1,7 +1,6 @@
 import numpy as np
 
-from kiosque_pipeline import layers
-from kiosque_pipeline.cluster import build_stories, cluster_labels, run
+from kiosque_pipeline.cluster import build_stories, cluster_labels
 from conftest import RUN_DATE
 from fakes import FakeEmbedder
 
@@ -47,16 +46,3 @@ def test_story_ids_deterministic():
     emb = FakeEmbedder().encode([x["title"] for x in ARTICLES])
     labels = cluster_labels(emb, 0.4)
     assert build_stories(RUN_DATE, ARTICLES, labels, emb) == build_stories(RUN_DATE, ARTICLES, labels, emb)
-
-
-def test_run_writes_silver(ctx):
-    ctx.storage.write_json(layers.bronze_articles(RUN_DATE), {"run_date": RUN_DATE, "articles": ARTICLES})
-    assert run(ctx, FakeEmbedder()) == {"stories": 2}
-    silver = ctx.storage.read_json(layers.silver_stories(RUN_DATE))
-    assert silver["distance_threshold"] == 0.4
-    assert len(silver["stories"]) == 2
-
-
-def test_run_with_no_articles(ctx):
-    ctx.storage.write_json(layers.bronze_articles(RUN_DATE), {"run_date": RUN_DATE, "articles": []})
-    assert run(ctx, FakeEmbedder()) == {"stories": 0}

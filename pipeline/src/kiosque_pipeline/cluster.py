@@ -6,17 +6,11 @@ sentence embeddings. A cluster becomes a story only if ≥ MIN_STORY_MEDIA
 distinct media cover it.
 """
 
-import logging
 from collections import defaultdict
 
 import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 
-from kiosque_pipeline import layers
-from kiosque_pipeline.context import JobContext
-from kiosque_pipeline.embed import Embedder
-
-logger = logging.getLogger(__name__)
 
 DEFAULT_DISTANCE_THRESHOLD = 0.40  # cosine distance; calibrated in Task 10
 MIN_STORY_MEDIA = 2
@@ -61,20 +55,3 @@ def build_stories(
         {"id": f"{run_date}-{rank:03d}", "title": c["title"], "article_ids": c["article_ids"]}
         for rank, c in enumerate(candidates, start=1)
     ]
-
-
-def run(ctx: JobContext, embedder: Embedder, distance_threshold: float = DEFAULT_DISTANCE_THRESHOLD) -> dict:
-    articles = ctx.storage.read_json(layers.bronze_articles(ctx.run_date))["articles"]
-    if articles:
-        embeddings = embedder.encode([a["title"] for a in articles])
-        stories = build_stories(ctx.run_date, articles, cluster_labels(embeddings, distance_threshold), embeddings)
-    else:
-        stories = []
-
-    ctx.storage.write_json(layers.silver_stories(ctx.run_date), {
-        "run_date": ctx.run_date,
-        "distance_threshold": distance_threshold,
-        "stories": stories,
-    })
-    logger.info("Clustered %d articles into %d stories", len(articles), len(stories))
-    return {"stories": len(stories)}

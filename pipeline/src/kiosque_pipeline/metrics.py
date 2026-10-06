@@ -11,8 +11,6 @@ The optional `influence` field is never used here.
 from collections import Counter
 from statistics import median
 
-from kiosque_pipeline import layers
-from kiosque_pipeline.context import JobContext
 
 INDEPENDANT = "independant"
 MIN_MEDIA_IGNORED_BY_MAJORS = 3
@@ -66,17 +64,3 @@ def day_kpis(stories: list[dict], articles: list[dict], sources_by_slug: dict[st
         "median_hhi": median(s["hhi"] for s in stories) if stories else None,
         "group_article_share": {g: round(100 * n / total, 1) for g, n in sorted(by_group.items())},
     }
-
-
-def run(ctx: JobContext) -> dict:
-    bronze = ctx.storage.read_json(layers.bronze_articles(ctx.run_date))
-    enriched = ctx.storage.read_json(layers.silver_enriched(ctx.run_date))["stories"]
-    stories = [story_metrics(s, ctx.major_groups) for s in enriched]
-    kpis = day_kpis(stories, bronze["articles"], ctx.sources_by_slug)
-    ctx.storage.write_json(layers.gold_metrics(ctx.run_date), {
-        "run_date": ctx.run_date,
-        "kpis": kpis,
-        "collection": bronze["collection"],
-        "stories": stories,
-    })
-    return {"stories": len(stories), "blind_spots": kpis["blind_spots"]}
