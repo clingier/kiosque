@@ -1,5 +1,6 @@
 """Shared fixtures for pipeline tests."""
 
+import os
 from pathlib import Path
 
 import pytest
@@ -34,3 +35,36 @@ def groups():
 @pytest.fixture
 def ctx(tmp_path, groups):
     return JobContext(storage=LocalStorage(tmp_path), run_date=RUN_DATE, sources=SOURCES, groups=groups)
+
+
+TESTS_DIR = Path(__file__).parent
+
+
+@pytest.fixture(scope="session")
+def spark(tmp_path_factory):
+    # Spark's Python workers must import test helpers (e.g. fakes.FakeEmbedder) by name.
+    os.environ["PYTHONPATH"] = os.pathsep.join(filter(None, [str(TESTS_DIR), os.environ.get("PYTHONPATH")]))
+    from kiosque_pipeline.local_spark import ensure_schemas, local_session
+
+    session = local_session(tmp_path_factory.mktemp("warehouse"))
+    ensure_schemas(session)
+    yield session
+    session.stop()
+
+
+@pytest.fixture
+def sctx(spark, tmp_path, groups):
+    from kiosque_pipeline.local_spark import SCHEMAS
+
+    for schema in SCHEMAS:
+        for t in spark.catalog.listTables(f"spark_catalog.{schema}"):
+            spark.sql(f"DROP TABLE IF EXISTS spark_catalog.{schema}.{t.name}")
+    return JobContext(
+        storage=LocalStorage(tmp_path / "web"),
+        run_date=RUN_DATE,
+        sources=SOURCES,
+        groups=groups,
+        spark=spark,
+        catalog="spark_catalog",
+        raw_root=str(tmp_path / "raw" / "feeds"),
+    )

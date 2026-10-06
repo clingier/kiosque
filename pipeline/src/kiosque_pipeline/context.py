@@ -6,10 +6,13 @@ from functools import cached_property
 
 @dataclass
 class JobContext:
-    storage: object  # LocalStorage | BlobStorage
+    storage: object  # LocalStorage | BlobStorage — only used to write $web
     run_date: str  # YYYY-MM-DD, UTC collection date
     sources: list[dict]
     groups: list[dict]
+    spark: object = None  # pyspark.sql.SparkSession
+    catalog: str = "kiosque"
+    raw_root: str = "/Volumes/kiosque/raw/feeds"
 
     @cached_property
     def sources_by_slug(self) -> dict[str, dict]:
