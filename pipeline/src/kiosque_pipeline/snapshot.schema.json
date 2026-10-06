@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kiosque/snapshot.schema.json",
+  "title": "Kiosque daily snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "date", "generated_at", "kpis", "collection", "groups", "media", "stories"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "generated_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "kpis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["articles", "media", "stories", "blind_spots", "median_hhi", "group_article_share"],
+      "properties": {
+        "articles": {"type": "integer", "minimum": 0},
+        "media": {"type": "integer", "minimum": 0},
+        "stories": {"type": "integer", "minimum": 0},
+        "blind_spots": {"type": "integer", "minimum": 0},
+        "median_hhi": {"type": ["number", "null"], "minimum": 0, "maximum": 10000},
+        "group_article_share": {
+          "type": "object",
+          "additionalProperties": {"type": "number", "minimum": 0, "maximum": 100}
+        }
+      }
+    },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total_sources", "success_count", "failed"],
+      "properties": {
+        "total_sources": {"type": "integer", "minimum": 0},
+        "success_count": {"type": "integer", "minimum": 0},
+        "failed": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "major"],
+        "properties": {
+          "id": {"type": "string"},
+          "label": {"type": "string"},
+          "major": {"type": "boolean"}
+        }
+      }
+    },
+    "media": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "name", "owner_group", "influence"],
+        "properties": {
+          "slug": {"type": "string"},
+          "name": {"type": "string"},
+          "owner_group": {"type": "string"},
+          "influence": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "stories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "article_count", "media_count", "hhi", "dominant_group",
+                     "dominant_share", "blind_spot", "groups", "articles"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}-\\d{3}$"},
+          "title": {"type": "string", "minLength": 1},
+          "article_count": {"type": "integer", "minimum": 2},
+          "media_count": {"type": "integer", "minimum": 2},
+          "hhi": {"type": "number", "minimum": 0, "maximum": 10000},
+          "dominant_group": {"type": "string"},
+          "dominant_share": {"type": "number", "minimum": 0, "maximum": 100},
+          "blind_spot": {"enum": [null, "single_group", "ignored_by_majors"]},
+          "groups": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 1}},
+          "articles": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["media", "title", "url", "date"],
+              "properties": {
+                "media": {"type": "string"},
+                "title": {"type": "string"},
+                "url": {"type": "string", "pattern": "^https?://"},
+                "date": {"type": ["string", "null"]}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
