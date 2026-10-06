@@ -1,0 +1,49 @@
+######################################################################
+# deploy-pipeline.yml – Deploy the Databricks bundle on merge to main
+######################################################################
+name: "Deploy Pipeline"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/**"
+      - "notebooks/**"
+      - "config/**"
+      - "databricks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-pipeline
+  cancel-in-progress: false
+
+env:
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+  DATABRICKS_AUTH_TYPE: azure-cli
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install build
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      - uses: databricks/setup-cli@main
+
+      - name: Deploy bundle
+        run: databricks bundle deploy -t prod --var alert_email="${{ secrets.ALERT_EMAIL }}"
