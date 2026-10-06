@@ -58,3 +58,14 @@ def test_invalid_snapshot_is_never_published(ctx):
     with pytest.raises(jsonschema.ValidationError):
         run(ctx, now=NOW)
     assert not ctx.storage.exists(layers.WEB_LATEST)
+
+
+def test_backfill_does_not_replace_newer_live_snapshot(ctx):
+    ctx.storage.write_json(layers.WEB_LATEST, {"date": "2026-10-07"})
+    ctx.storage.write_json(layers.gold_metrics(RUN_DATE), METRICS)
+
+    result = run(ctx, now=NOW)
+
+    assert ctx.storage.read_json(layers.WEB_LATEST) == {"date": "2026-10-07"}
+    assert result["published"] == [layers.gold_snapshot(RUN_DATE), layers.web_archive(RUN_DATE)]
+    assert ctx.storage.read_json(layers.web_archive(RUN_DATE))["date"] == RUN_DATE

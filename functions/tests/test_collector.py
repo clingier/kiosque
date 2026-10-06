@@ -315,3 +315,28 @@ class TestRunCollection:
         paths_written = [c[0][0] for c in write_calls]
         assert any("test-ok.json" in p for p in paths_written)
         assert any("_report.json" in p for p in paths_written)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Test the overall collection time budget
+# ──────────────────────────────────────────────────────────────────────
+
+
+class TestCollectionBudget:
+    def test_slow_source_times_out_but_others_are_kept(self):
+        import asyncio
+        from collector import collect_all_async
+
+        def fake_collect(source):
+            if source["slug"] == "slow":
+                time.sleep(1.0)
+            return {"slug": source["slug"], "status": "ok", "source_method": "rss", "feed_url": "",
+                    "article_count": 1, "articles": [{"title": "t", "url": "u", "date": None}], "duration_ms": 1}
+
+        with patch("collector._collect_one_sync", side_effect=fake_collect):
+            results = asyncio.run(collect_all_async([{"slug": "fast"}, {"slug": "slow"}], budget_seconds=0.2))
+
+        by_slug = {r["slug"]: r for r in results}
+        assert by_slug["fast"]["status"] == "ok"
+        assert by_slug["slow"]["status"] == "error"
+        assert "budget" in by_slug["slow"]["error"]

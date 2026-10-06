@@ -9,6 +9,7 @@ import asyncio
 import logging
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -31,6 +32,11 @@ RETRY_BACKOFF_BASE = 1  # seconds: 1s, 2s, 4s
 
 # HTTP timeout per request (seconds)
 REQUEST_TIMEOUT = 15
+
+# Overall collection budget (seconds). Sources still running after this are
+# reported as errors so _report.json is always written before the 10-minute
+# functionTimeout (host.json).
+COLLECTION_BUDGET_SECONDS = 480
 
 
 def load_sources(config_path: str | None = None) -> list[dict]:
@@ -201,53 +207,68 @@ def _try_feed_with_retry(url: str, feed_type: str, slug: str) -> list[dict]:
 
 
 async def _collect_one_async(
-    source: dict, semaphore: asyncio.Semaphore, loop: asyncio.AbstractEventLoop
+    source: dict,
+    semaphore: asyncio.Semaphore,
+    loop: asyncio.AbstractEventLoop,
+    executor: ThreadPoolExecutor,
 ) -> dict:
     """
     Async wrapper around _collect_one_sync.
 
     Uses a semaphore to limit concurrency and runs the synchronous
-    parsers in a thread pool to avoid blocking the event loop.
+    parsers in a dedicated thread pool to avoid blocking the event loop.
     """
     async with semaphore:
-        return await loop.run_in_executor(None, _collect_one_sync, source)
+        return await loop.run_in_executor(executor, _collect_one_sync, source)
 
 
-async def collect_all_async(sources: list[dict]) -> list[dict]:
+def _error_result(slug: str, error: str) -> dict:
+    return {
+        "slug": slug,
+        "status": "error",
+        "error": error,
+        "source_method": "none",
+        "feed_url": "",
+        "article_count": 0,
+        "articles": [],
+        "duration_ms": 0,
+    }
+
+
+async def collect_all_async(
+    sources: list[dict],
+    budget_seconds: float = COLLECTION_BUDGET_SECONDS,
+) -> list[dict]:
     """
     Collect articles from all sources in parallel with bounded concurrency.
 
+    Sources not finished within budget_seconds are reported as errors.
     Returns a list of result dicts (one per source).
     """
     semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
+    executor = ThreadPoolExecutor(max_workers=MAX_CONCURRENT_REQUESTS)
 
     tasks = [
-        _collect_one_async(source, semaphore, loop) for source in sources
+        asyncio.ensure_future(_collect_one_async(source, semaphore, loop, executor))
+        for source in sources
     ]
+    _, pending = await asyncio.wait(tasks, timeout=budget_seconds)
+    for task in pending:
+        task.cancel()
+    executor.shutdown(wait=False, cancel_futures=True)
 
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-
-    # Convert any exceptions to error results
     processed = []
-    for i, result in enumerate(results):
-        if isinstance(result, Exception):
-            slug = sources[i].get("slug", f"unknown-{i}")
-            logger.error("Unexpected error collecting %s: %s", slug, result)
-            processed.append(
-                {
-                    "slug": slug,
-                    "status": "error",
-                    "error": str(result),
-                    "source_method": "none",
-                    "feed_url": "",
-                    "article_count": 0,
-                    "articles": [],
-                    "duration_ms": 0,
-                }
-            )
+    for i, task in enumerate(tasks):
+        slug = sources[i].get("slug", f"unknown-{i}")
+        if task in pending:
+            logger.error("Collection budget of %ss exceeded for %s", budget_seconds, slug)
+            processed.append(_error_result(slug, f"Exceeded collection budget of {budget_seconds}s"))
+        elif task.exception() is not None:
+            logger.error("Unexpected error collecting %s: %s", slug, task.exception())
+            processed.append(_error_result(slug, str(task.exception())))
         else:
-            processed.append(result)
+            processed.append(task.result())
 
     return processed
 

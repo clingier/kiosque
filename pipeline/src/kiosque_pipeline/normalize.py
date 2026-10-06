@@ -70,6 +70,8 @@ def normalize_articles(raw_files: list[dict], reference_time: datetime, known_sl
             if not _in_window(date, reference_time):
                 continue
             url = canonical_url(article["url"])
+            if not url.startswith(("http://", "https://")):
+                continue
             candidate = {
                 "id": hashlib.sha1(url.encode("utf-8")).hexdigest()[:16],
                 "media": media,

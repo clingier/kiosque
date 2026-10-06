@@ -36,9 +36,12 @@ class TestParseDateSitemap:
         result = _parse_date("2026-07-03T08:30:00+02:00")
         assert result == "2026-07-03T06:30:00Z"
 
-    def test_date_only(self):
+    def test_date_only_maps_to_end_of_day(self):
+        # Start-of-day would push articles published after the previous
+        # collection outside the next day's 24h window; end-of-day counts
+        # each date-only article exactly once.
         result = _parse_date("2026-07-03")
-        assert result == "2026-07-03T00:00:00Z"
+        assert result == "2026-07-03T23:59:59Z"
 
     def test_none_returns_none(self):
         assert _parse_date(None) is None

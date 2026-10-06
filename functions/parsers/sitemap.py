@@ -78,9 +78,10 @@ def _parse_date(date_str: str | None) -> str | None:
             dt = dt.astimezone(timezone.utc)
             return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
         else:
-            # Date only — assume start of day UTC
+            # Date only — assume end of day UTC, so the article falls in exactly
+            # one daily collection window (the one after that day ends)
             dt = datetime.strptime(date_str[:10], "%Y-%m-%d")
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(hour=23, minute=59, second=59, tzinfo=timezone.utc)
             return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     except (ValueError, TypeError):
         return None

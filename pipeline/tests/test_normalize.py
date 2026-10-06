@@ -63,6 +63,14 @@ class TestNormalizeArticles:
         ]
         assert normalize_articles(files, REF, {"cnews"}) == []
 
+    def test_drops_non_http_urls(self):
+        files = [raw("cnews", [
+            art("Un titre parfaitement valable ici", "javascript:void(0)"),
+            art("Un autre titre tout à fait valable", "/relative/path"),
+            art("Un troisième titre bien valable aussi", "https://www.cnews.fr/ok"),
+        ])]
+        assert [a["url"] for a in normalize_articles(files, REF, {"cnews"})] == ["https://www.cnews.fr/ok"]
+
     def test_output_shape_and_order(self):
         files = [
             raw("le-monde", [art("Budget : ce que contient le projet", "https://www.lemonde.fr/b")]),
