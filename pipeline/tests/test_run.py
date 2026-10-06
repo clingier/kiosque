@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from kiosque_pipeline import layers
 from kiosque_pipeline.run import run_all
 from conftest import RUN_DATE
-from test_cluster import FakeEmbedder
+from fakes import FakeEmbedder
 
 NOW = datetime(2026, 10, 6, 6, 31, 0, tzinfo=timezone.utc)
 

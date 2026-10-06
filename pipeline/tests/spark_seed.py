@@ -32,3 +32,20 @@ def bronze_rows(ctx) -> list[tuple]:
         (r.media, r.url, r.title, r.id, r.date, r.source_method)
         for r in df.select("media", "url", "title", "id", F.date_format("date", TS).alias("date"), "source_method").collect()
     )
+
+
+BRONZE_SCHEMA = "run_date date, id string, media string, title string, url string, date timestamp, source_method string"
+
+
+def seed_bronze(ctx, articles: list[dict]) -> None:
+    from pyspark.sql import functions as F
+
+    from kiosque_pipeline.tables import write_day
+
+    rows = [(a["id"], a["media"], a["title"], a["url"], a.get("date"), a.get("source_method", "rss")) for a in articles]
+    df = ctx.spark.createDataFrame(rows, "id string, media string, title string, url string, date string, source_method string")
+    df = df.select(
+        F.to_date(F.lit(ctx.run_date)).alias("run_date"), "id", "media", "title", "url",
+        F.try_to_timestamp("date", F.lit(TS)).alias("date"), "source_method",
+    )
+    write_day(df, ctx, "bronze", "articles")
