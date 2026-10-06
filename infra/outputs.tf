@@ -37,3 +37,9 @@ output "appinsights_connection_string" {
   value       = azurerm_application_insights.main.connection_string
   sensitive   = true
 }
+
+output "datalake_connection_string" {
+  description = "ADLS connection string — stored in the Databricks secret scope 'kiosque'"
+  value       = azurerm_storage_account.main.primary_connection_string
+  sensitive   = true
+}

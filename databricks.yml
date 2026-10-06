@@ -1,0 +1,94 @@
+# Databricks Asset Bundle — Kiosque daily processing job.
+# Deploy:  DATABRICKS_HOST=https://<workspace-url> databricks bundle deploy -t prod --var alert_email=<email>
+bundle:
+  name: kiosque
+
+variables:
+  alert_email:
+    description: Address notified when the daily job fails
+
+artifacts:
+  pipeline_wheel:
+    type: whl
+    path: ./pipeline
+    build: python -m build --wheel
+
+sync:
+  include:
+    - config/*.yaml
+    - notebooks/*.py
+
+resources:
+  jobs:
+    kiosque_daily:
+      name: kiosque-daily
+      max_concurrent_runs: 1
+      schedule:
+        quartz_cron_expression: "0 20 6 * * ?"
+        timezone_id: UTC
+      email_notifications:
+        on_failure:
+          - ${var.alert_email}
+      parameters:
+        - name: run_date
+          default: ""
+        - name: config_dir
+          default: ${workspace.file_path}/config
+      job_clusters:
+        - job_cluster_key: single_node
+          new_cluster:
+            spark_version: 16.4.x-cpu-ml-scala2.12
+            node_type_id: Standard_D4ds_v5
+            num_workers: 0
+            data_security_mode: SINGLE_USER
+            spark_conf:
+              spark.master: "local[*, 4]"
+              spark.databricks.cluster.profile: singleNode
+            custom_tags:
+              ResourceClass: SingleNode
+      tasks:
+        - task_key: normalize
+          job_cluster_key: single_node
+          notebook_task:
+            notebook_path: ./notebooks/01_normalize.py
+          libraries:
+            - whl: ./pipeline/dist/*.whl
+        - task_key: cluster
+          depends_on:
+            - task_key: normalize
+          job_cluster_key: single_node
+          notebook_task:
+            notebook_path: ./notebooks/02_cluster.py
+          libraries:
+            - whl: ./pipeline/dist/*.whl
+            - pypi:
+                package: sentence-transformers>=2.7
+        - task_key: ownership
+          depends_on:
+            - task_key: cluster
+          job_cluster_key: single_node
+          notebook_task:
+            notebook_path: ./notebooks/03_ownership.py
+          libraries:
+            - whl: ./pipeline/dist/*.whl
+        - task_key: metrics
+          depends_on:
+            - task_key: ownership
+          job_cluster_key: single_node
+          notebook_task:
+            notebook_path: ./notebooks/04_metrics.py
+          libraries:
+            - whl: ./pipeline/dist/*.whl
+        - task_key: publish
+          depends_on:
+            - task_key: metrics
+          job_cluster_key: single_node
+          notebook_task:
+            notebook_path: ./notebooks/05_publish.py
+          libraries:
+            - whl: ./pipeline/dist/*.whl
+
+targets:
+  prod:
+    mode: production
+    default: true
