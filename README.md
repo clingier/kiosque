@@ -79,7 +79,7 @@ kiosque/
 │   └── kiosque.html        # Fichier unique (HTML + CSS + JS minimal)
 │
 ├── config/
-│   ├── sources.yaml        # Liste des 62 médias, feeds, groupes propriétaires
+│   ├── sources.yaml        # Liste des médias, feeds, groupes propriétaires
 │   └── ownership.yaml      # Mapping média → groupe (ref. Acrimed)
 │
 ├── tests/
@@ -108,7 +108,11 @@ kiosque/
 | Service public | France Info, France Inter, France 2, Arte | Gris |
 | Indépendant | Mediapart, Blast, Reporterre, Alternatives Économiques | Gris clair |
 
+`owner_group` encode la **propriété capitalistique** — c'est la seule base du HHI. Le bucket `independant` signifie « hors des six groupes nommés » : il rassemble aussi bien Le Figaro, Libération ou Ouest-France que des titres de lignes éditoriales très diverses.
+
 Source des données de propriété : [Acrimed](https://www.acrimed.org/).
+
+> **Réseau Stérin / Périclès.** Le rachat de *Valeurs actuelles* (finalisé déc. 2025) par le trio La Combe / Caude / Stérin et le financement, via la galaxie Périclès, de l'école de journalisme (ILDJ) qui irrigue CNews, Le Figaro, Valeurs actuelles, Boulevard Voltaire et Causeur, dessinent un **réseau d'influence** émergent. Comme il s'agit d'influence et non de contrôle capitalistique direct, ce réseau est suivi comme **signal qualitatif** (champ `influence`, optionnel) et reste **exclu du calcul du HHI**.
 
 ## Prérequis
 
@@ -156,13 +160,16 @@ Importer les notebooks dans le workspace, configurer le Workflow (5 tasks chaîn
 
 ## Données et métriques
 
-- **HHI** (Herfindahl-Hirschman Index) : mesure de concentration par sujet. 0 = diversité totale, 10 000 = monopole.
+- **HHI** (Herfindahl-Hirschman Index) : mesure de concentration **capitalistique** par sujet. 0 = diversité totale, 10 000 = monopole. Ne mesure que la propriété — jamais la tendance éditoriale.
 - **Angle mort** : sujet couvert par un seul groupe propriétaire ou ignoré par les grands groupes.
 - **Part du dominant** : pourcentage d'articles d'un sujet provenant du groupe le plus représenté.
+- **Tendance** : axe éditorial non suivi par Kiosque — impossible à sourcer objectivement. Seule la propriété est mesurée.
 
 ## Principes
 
 - **Pas de republication** — Kiosque affiche des titres et des liens. Le contenu reste chez l'éditeur.
+- **Propriété = seul axe** — Kiosque mesure la concentration capitalistique, pas la ligne éditoriale. Classer les médias sur un axe politique nécessiterait une source institutionnelle fiable — elle n'existe pas.
+- **Périmètre éditorial** — Tout média français couvrant l'actualité générale est intégré, quelle que soit sa ligne. En revanche, les publications négationnistes ou de haine explicite sont **exclues** — faible valeur de clustering, et risque juridique.
 - **Couleur = propriété** — Les couleurs ne sont jamais décoratives. Chaque teinte encode un groupe propriétaire, renforcée par un pattern (rayures, points, hachures) pour l'accessibilité.
 - **Zéro build frontend** — Le site est un fichier HTML unique. Pas de bundler, pas de framework, pas de node_modules.
 - **Coût minimal** — Tout est serverless ou near-zero idle cost. Le budget cible est <20€/mois.

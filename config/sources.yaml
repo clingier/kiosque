@@ -1,0 +1,635 @@
+# =============================================================================
+# sources.yaml — Référence des 65 médias français suivis par Kiosque
+#
+# Chaque entrée contient :
+#   slug            : identifiant unique (minuscules, tirets)
+#   name            : nom d'affichage
+#   owner_group     : bollore | niel | bouygues | arnault | kretinsky | saade | public | independant
+#   feeds           : liste ordonnée de flux à essayer [{url, type}]
+#   fallback_domain : domaine nu pour Google News RSS (si pas de feed natif)
+#   notes           : remarques libres
+#   influence       : (optionnel) réseau d'influence non-capitalistique (ex: "sterin-pericles")
+#
+# Propriété des médias : Acrimed / Le Monde diplomatique (décembre 2025)
+# Flux RSS vérifiés : juillet 2026
+# =============================================================================
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BOLLORÉ / VIVENDI
+# ─────────────────────────────────────────────────────────────────────────────
+
+- slug: cnews
+  name: CNews
+  owner_group: bollore
+  feeds:
+    - url: https://www.cnews.fr/rss.xml
+      type: rss
+  fallback_domain: cnews.fr
+  notes: "RSS instable, vérifier régulièrement"
+
+- slug: canal-plus
+  name: Canal+
+  owner_group: bollore
+  feeds: []
+  fallback_domain: canalplus.com
+  notes: "Pas de flux RSS public, contenu principalement vidéo"
+
+- slug: europe-1
+  name: Europe 1
+  owner_group: bollore
+  feeds:
+    - url: https://www.europe1.fr/rss.xml
+      type: rss
+  fallback_domain: europe1.fr
+  notes: "Flux principalement axé podcasts, articles textuels limités"
+
+- slug: le-jdd
+  name: Le JDD
+  owner_group: bollore
+  feeds:
+    - url: https://www.lejdd.fr/rss.xml
+      type: rss
+  fallback_domain: lejdd.fr
+  notes: ""
+
+- slug: paris-match
+  name: Paris Match
+  owner_group: bollore
+  feeds:
+    - url: https://www.parismatch.com/rss.xml
+      type: rss
+  fallback_domain: parismatch.com
+  notes: ""
+
+
+- slug: prisma-media
+  name: Prisma Media
+  owner_group: bollore
+  feeds: []
+  fallback_domain: geo.fr
+  notes: "Prisma regroupe Geo, Femme Actuelle, Capital — pas de RSS unifié"
+
+- slug: voici
+  name: Voici
+  owner_group: bollore
+  feeds:
+    - url: https://www.voici.fr/rss.xml
+      type: rss
+  fallback_domain: voici.fr
+  notes: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NIEL / LE MONDE
+# ─────────────────────────────────────────────────────────────────────────────
+
+- slug: le-monde
+  name: Le Monde
+  owner_group: niel
+  feeds:
+    - url: https://www.lemonde.fr/rss/une.xml
+      type: rss
+    - url: https://www.lemonde.fr/sitemap_news.xml
+      type: sitemap
+  fallback_domain: lemonde.fr
+  notes: ""
+
+- slug: lobs
+  name: L'Obs
+  owner_group: niel
+  feeds:
+    - url: https://www.nouvelobs.com/rss.xml
+      type: rss
+  fallback_domain: nouvelobs.com
+  notes: ""
+
+- slug: telerama
+  name: Télérama
+  owner_group: niel
+  feeds:
+    - url: https://www.telerama.fr/rss.xml
+      type: rss
+  fallback_domain: telerama.fr
+  notes: ""
+
+- slug: courrier-international
+  name: Courrier International
+  owner_group: niel
+  feeds:
+    - url: https://www.courrierinternational.com/feed/all/rss.xml
+      type: rss
+  fallback_domain: courrierinternational.com
+  notes: ""
+
+- slug: huffpost
+  name: HuffPost
+  owner_group: niel
+  feeds:
+    - url: https://www.huffingtonpost.fr/rss.xml
+      type: rss
+  fallback_domain: huffingtonpost.fr
+  notes: ""
+
+- slug: le-monde-diplomatique
+  name: Le Monde diplomatique
+  owner_group: niel
+  feeds:
+    - url: https://www.monde-diplomatique.fr/recents.xml
+      type: rss
+  fallback_domain: monde-diplomatique.fr
+  notes: "Publication mensuelle — peu d'articles quotidiens"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BOUYGUES / TF1
+# ─────────────────────────────────────────────────────────────────────────────
+
+- slug: tf1-info
+  name: TF1 Info
+  owner_group: bouygues
+  feeds:
+    - url: https://www.tf1info.fr/rss.xml
+      type: rss
+  fallback_domain: tf1info.fr
+  notes: ""
+
+- slug: lci
+  name: LCI
+  owner_group: bouygues
+  feeds: []
+  fallback_domain: tf1info.fr
+  notes: "LCI fusionné dans TF1 Info, fallback via tf1info.fr"
+
+- slug: tf1
+  name: TF1
+  owner_group: bouygues
+  feeds: []
+  fallback_domain: tf1.fr
+  notes: "Site orienté replay/divertissement, peu d'articles textuels"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ARNAULT / LVMH
+# ─────────────────────────────────────────────────────────────────────────────
+
+- slug: les-echos
+  name: Les Échos
+  owner_group: arnault
+  feeds:
+    - url: https://www.lesechos.fr/rss/rss_une.xml
+      type: rss
+    - url: https://www.lesechos.fr/sitemap-news.xml
+      type: sitemap
+  fallback_domain: lesechos.fr
+  notes: ""
+
+- slug: le-parisien
+  name: Le Parisien
+  owner_group: arnault
+  feeds:
+    - url: https://www.leparisien.fr/arc/outboundfeeds/rss/une.xml
+      type: rss
+  fallback_domain: leparisien.fr
+  notes: ""
+
+- slug: radio-classique
+  name: Radio Classique
+  owner_group: arnault
+  feeds: []
+  fallback_domain: radioclassique.fr
+  notes: "Radio musicale, très peu d'articles textuels"
+
+- slug: lopinion
+  name: "L'Opinion"
+  owner_group: arnault
+  feeds:
+    - url: https://www.lopinion.fr/rss.xml
+      type: rss
+  fallback_domain: lopinion.fr
+  notes: "Racheté par Arnault en 2025"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# KRETINSKY / CMI
+# ─────────────────────────────────────────────────────────────────────────────
+
+- slug: marianne
+  name: Marianne
+  owner_group: kretinsky
+  feeds:
+    - url: https://www.marianne.net/rss.xml
+      type: rss
+  fallback_domain: marianne.net
+  notes: ""
+
+- slug: elle
+  name: Elle
+  owner_group: kretinsky
+  feeds:
+    - url: https://www.elle.fr/rss.xml
+      type: rss
+  fallback_domain: elle.fr
+  notes: ""
+
+
+- slug: tele-7-jours
+  name: Télé 7 Jours
+  owner_group: kretinsky
+  feeds:
+    - url: https://www.programme-tv.net/rss.xml
+      type: rss
+  fallback_domain: programme-tv.net
+  notes: "Contenu principalement programmes TV"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SAADÉ / CMA CGM
+# ─────────────────────────────────────────────────────────────────────────────
+
+- slug: bfm-tv
+  name: BFM TV
+  owner_group: saade
+  feeds:
+    - url: https://www.bfmtv.com/rss/info/flux-rss/flux-toutes-les-actualites/
+      type: rss
+  fallback_domain: bfmtv.com
+  notes: "Racheté par CMA CGM via Altice Média (2024)"
+
+- slug: rmc
+  name: RMC
+  owner_group: saade
+  feeds:
+    - url: https://rmc.bfmtv.com/rss/info/flux-rss/flux-toutes-les-actualites/
+      type: rss
+  fallback_domain: rmc.bfmtv.com
+  notes: ""
+
+- slug: la-provence
+  name: La Provence
+  owner_group: saade
+  feeds:
+    - url: https://www.laprovence.com/rss.xml
+      type: rss
+  fallback_domain: laprovence.com
+  notes: ""
+
+- slug: la-tribune-dimanche
+  name: La Tribune Dimanche
+  owner_group: saade
+  feeds: []
+  fallback_domain: latribune.fr
+  notes: "Hebdomadaire du dimanche, pas de flux RSS dédié"
+
+- slug: corse-matin
+  name: Corse Matin
+  owner_group: saade
+  feeds:
+    - url: https://www.corsematin.com/rss.xml
+      type: rss
+  fallback_domain: corsematin.com
+  notes: ""
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SERVICE PUBLIC
+# ─────────────────────────────────────────────────────────────────────────────
+
+- slug: france-info
+  name: France Info
+  owner_group: public
+  feeds:
+    - url: https://www.francetvinfo.fr/titres.rss
+      type: rss
+    - url: https://www.francetvinfo.fr/sitemap-news.xml
+      type: sitemap
+  fallback_domain: francetvinfo.fr
+  notes: ""
+
+- slug: france-inter
+  name: France Inter
+  owner_group: public
+  feeds:
+    - url: https://radiofrance-podcast.net/podcast09/rss_10239.xml
+      type: rss
+  fallback_domain: radiofrance.fr/franceinter
+  notes: "Flux podcasts Radio France, articles textuels sur radiofrance.fr"
+
+- slug: france-culture
+  name: France Culture
+  owner_group: public
+  feeds:
+    - url: https://radiofrance-podcast.net/podcast09/rss_10076.xml
+      type: rss
+  fallback_domain: radiofrance.fr/franceculture
+  notes: "Flux podcasts Radio France"
+
+- slug: france-2
+  name: France 2
+  owner_group: public
+  feeds:
+    - url: https://www.francetvinfo.fr/titres.rss
+      type: rss
+  fallback_domain: france.tv
+  notes: "France 2 info alimenté via francetvinfo.fr"
+
+- slug: france-3
+  name: France 3
+  owner_group: public
+  feeds:
+    - url: https://www.franceinfo.fr/france-3.rss
+      type: rss
+  fallback_domain: francetvinfo.fr
+  notes: "Flux France 3 via franceinfo.fr, fallback via francetvinfo.fr"
+
+- slug: france-5
+  name: France 5
+  owner_group: public
+  feeds: []
+  fallback_domain: france.tv
+  notes: "Chaîne documentaires/magazines, pas de flux articles textuels"
+
+- slug: arte
+  name: Arte
+  owner_group: public
+  feeds:
+    - url: https://www.arte.tv/guide/api/api/zones/fr/web/NEWS/listing
+      type: rss
+  fallback_domain: arte.tv
+  notes: "API interne Arte, peut nécessiter fallback Google News"
+
+- slug: rfi
+  name: RFI
+  owner_group: public
+  feeds:
+    - url: https://www.rfi.fr/fr/rss
+      type: rss
+  fallback_domain: rfi.fr
+  notes: ""
+
+- slug: france-24
+  name: France 24
+  owner_group: public
+  feeds:
+    - url: https://www.france24.com/fr/rss
+      type: rss
+  fallback_domain: france24.com
+  notes: ""
+
+- slug: public-senat
+  name: Public Sénat
+  owner_group: public
+  feeds:
+    - url: https://www.publicsenat.fr/rss.xml
+      type: rss
+  fallback_domain: publicsenat.fr
+  notes: ""
+
+- slug: france-bleu
+  name: France Bleu
+  owner_group: public
+  feeds:
+    - url: https://www.francebleu.fr/rss/a-la-une.xml
+      type: rss
+  fallback_domain: francebleu.fr
+  notes: ""
+
+- slug: ina
+  name: INA
+  owner_group: public
+  feeds: []
+  fallback_domain: ina.fr
+  notes: "Archives audiovisuelles, pas de flux articles d'actualité"
+
+- slug: france-medias-monde
+  name: France Médias Monde
+  owner_group: public
+  feeds:
+    - url: https://www.france24.com/fr/rss
+      type: rss
+  fallback_domain: francemediasmonde.com
+  notes: "Maison mère RFI/F24, flux F24 comme proxy"
+
+- slug: tv5-monde
+  name: TV5 Monde
+  owner_group: public
+  feeds:
+    - url: https://information.tv5monde.com/rss.xml
+      type: rss
+  fallback_domain: tv5monde.com
+  notes: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INDÉPENDANT
+# ─────────────────────────────────────────────────────────────────────────────
+
+- slug: mediapart
+  name: Mediapart
+  owner_group: independant
+  feeds:
+    - url: https://www.mediapart.fr/articles/feed
+      type: rss
+  fallback_domain: mediapart.fr
+  notes: "Contenu réservé abonnés, titres et chapôs accessibles"
+
+- slug: blast
+  name: Blast
+  owner_group: independant
+  feeds:
+    - url: https://www.blast-info.fr/rss.xml
+      type: rss
+  fallback_domain: blast-info.fr
+  notes: ""
+
+- slug: reporterre
+  name: Reporterre
+  owner_group: independant
+  feeds:
+    - url: https://reporterre.net/spip.php?page=backend-simple
+      type: rss
+  fallback_domain: reporterre.net
+  notes: "Flux SPIP, format RSS 2.0"
+
+- slug: alternatives-economiques
+  name: Alternatives Économiques
+  owner_group: independant
+  feeds:
+    - url: https://www.alternatives-economiques.fr/rss.xml
+      type: rss
+  fallback_domain: alternatives-economiques.fr
+  notes: ""
+
+- slug: le-figaro
+  name: Le Figaro
+  owner_group: independant
+  feeds:
+    - url: https://www.lefigaro.fr/rss/figaro_une.xml
+      type: rss
+    - url: https://www.lefigaro.fr/sitemap_news.xml
+      type: sitemap
+  fallback_domain: lefigaro.fr
+  notes: "Famille Dassault — classé indépendant (hors des 6 groupes nommés)"
+
+- slug: liberation
+  name: Libération
+  owner_group: independant
+  feeds:
+    - url: https://www.liberation.fr/arc/outboundfeeds/rss-collection/accueil-une/
+      type: rss
+  fallback_domain: liberation.fr
+  notes: "Flux parfois instable"
+
+- slug: 20-minutes
+  name: 20 Minutes
+  owner_group: independant
+  feeds:
+    - url: https://www.20minutes.fr/feeds/rss-une.xml
+      type: rss
+  fallback_domain: 20minutes.fr
+  notes: ""
+
+- slug: lequipe
+  name: "L'Équipe"
+  owner_group: independant
+  feeds:
+    - url: https://www.lequipe.fr/rss/actu_rss.xml
+      type: rss
+  fallback_domain: lequipe.fr
+  notes: "Groupe Amaury — classé indépendant (hors des 6 groupes nommés)"
+
+- slug: ouest-france
+  name: Ouest-France
+  owner_group: independant
+  feeds:
+    - url: https://www.ouest-france.fr/rss.xml
+      type: rss
+  fallback_domain: ouest-france.fr
+  notes: "Premier quotidien français par le tirage"
+
+- slug: la-croix
+  name: La Croix
+  owner_group: independant
+  feeds:
+    - url: https://www.la-croix.com/RSS/UNIVERS
+      type: rss
+  fallback_domain: la-croix.com
+  notes: "Groupe Bayard"
+
+- slug: sud-ouest
+  name: Sud Ouest
+  owner_group: independant
+  feeds:
+    - url: https://www.sudouest.fr/rss.xml
+      type: rss
+  fallback_domain: sudouest.fr
+  notes: ""
+
+- slug: la-depeche
+  name: La Dépêche du Midi
+  owner_group: independant
+  feeds:
+    - url: https://www.ladepeche.fr/rss.xml
+      type: rss
+  fallback_domain: ladepeche.fr
+  notes: ""
+
+- slug: le-point
+  name: Le Point
+  owner_group: independant
+  feeds:
+    - url: https://www.lepoint.fr/rss.xml
+      type: rss
+  fallback_domain: lepoint.fr
+  notes: ""
+
+- slug: lexpress
+  name: "L'Express"
+  owner_group: independant
+  feeds:
+    - url: https://www.lexpress.fr/rss/alaune.xml
+      type: rss
+  fallback_domain: lexpress.fr
+  notes: ""
+
+- slug: arret-sur-images
+  name: Arrêt sur images
+  owner_group: independant
+  feeds:
+    - url: https://api.arretsurimages.net/api/public/rss/all-content
+      type: rss
+  fallback_domain: arretsurimages.net
+  notes: "Contenu réservé abonnés, titres accessibles"
+
+- slug: politis
+  name: Politis
+  owner_group: independant
+  feeds:
+    - url: https://www.politis.fr/feed/
+      type: rss
+  fallback_domain: politis.fr
+  notes: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PRESSE RÉAC / IDENTITAIRE — propriété indépendante, réseau d'influence Stérin-Périclès
+# owner_group reste independant ; le champ influence trace les réseaux
+# ─────────────────────────────────────────────────────────────────────────────
+
+- slug: valeurs-actuelles
+  name: Valeurs actuelles
+  owner_group: independant
+  influence: sterin-pericles   # Valmonde → La Combe/Caude/Stérin (déc. 2025), ILDJ
+  feeds:
+    - url: https://www.valeursactuelles.com/feed
+      type: rss
+  fallback_domain: valeursactuelles.com
+  notes: "Vendu par les héritiers Safa au trio La Combe/Caude/Stérin, finalisé déc. 2025"
+
+- slug: causeur
+  name: Causeur
+  owner_group: independant
+  influence: sterin-pericles   # Lié au réseau Périclès via ILDJ
+  feeds:
+    - url: https://www.causeur.fr/feed
+      type: rss
+  fallback_domain: causeur.fr
+  notes: "WordPress, /feed vérifié. Élisabeth Lévy / Gil Mihaely"
+
+- slug: boulevard-voltaire
+  name: Boulevard Voltaire
+  owner_group: independant
+  influence: sterin-pericles   # Lié au réseau Périclès via ILDJ
+  feeds:
+    - url: https://www.bvoltaire.fr/feed/
+      type: rss
+  fallback_domain: bvoltaire.fr
+  notes: "Domaine réel = bvoltaire.fr. Association Ménard"
+
+- slug: lincorrect
+  name: "L'Incorrect"
+  owner_group: independant
+  feeds:
+    - url: https://lincorrect.org/feed/
+      type: rss
+  fallback_domain: lincorrect.org
+  notes: "Mensuel national-conservateur. WordPress, /feed/ vérifié"
+
+- slug: elements
+  name: Éléments
+  owner_group: independant
+  feeds:
+    - url: https://www.revue-elements.com/feed/
+      type: rss
+  fallback_domain: revue-elements.com
+  notes: "Nouvelle Droite / GRECE (Alain de Benoist). Revue bimestrielle, faible débit"
+
+- slug: tv-libertes
+  name: TV Libertés
+  owner_group: independant
+  feeds:
+    - url: https://tvl.fr/feed
+      type: rss
+  fallback_domain: tvl.fr
+  notes: "Web-TV identitaire. tvlibertes.com redirige vers tvl.fr, /feed vérifié RSS valide"
+
+- slug: front-populaire
+  name: Front Populaire
+  owner_group: independant
+  feeds:
+    - url: https://frontpopulaire.fr/rss
+      type: rss
+  fallback_domain: frontpopulaire.fr
+  notes: "Michel Onfray. /rss vérifié (application/xml). Classement souverainiste, pas strictement ED"

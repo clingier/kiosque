@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Le Monde.fr - Actualités et Infos en France et dans le monde</title>
+    <link>https://www.lemonde.fr</link>
+    <description>Le Monde.fr - 1er site d'information français</description>
+    <language>fr</language>
+    <lastBuildDate>Thu, 03 Jul 2026 08:00:00 +0200</lastBuildDate>
+    <item>
+      <title>Les élections législatives s'annoncent très disputées</title>
+      <link>https://www.lemonde.fr/politique/article/2026/07/03/elections-legislatives_1234567.html</link>
+      <pubDate>Thu, 03 Jul 2026 07:30:00 +0200</pubDate>
+      <description>L'analyse des dernières tendances électorales montre un scrutin serré.</description>
+    </item>
+    <item>
+      <title>Canicule : 15 départements en alerte orange</title>
+      <link>https://www.lemonde.fr/meteo/article/2026/07/03/canicule-alerte_1234568.html</link>
+      <pubDate>Thu, 03 Jul 2026 06:45:00 +0200</pubDate>
+      <description>Météo-France a placé quinze départements en vigilance orange canicule.</description>
+    </item>
+    <item>
+      <title>Le marché de l'emploi en France retrouve des couleurs</title>
+      <link>https://www.lemonde.fr/economie/article/2026/07/03/emploi-reprise_1234569.html</link>
+      <pubDate>Wed, 02 Jul 2026 22:15:00 +0200</pubDate>
+      <description>Le taux de chômage a baissé pour le troisième trimestre consécutif.</description>
+    </item>
+    <item>
+      <title>Article ancien à filtrer</title>
+      <link>https://www.lemonde.fr/ancien/article/2026/06/01/vieux_999999.html</link>
+      <pubDate>Mon, 01 Jun 2026 10:00:00 +0200</pubDate>
+      <description>Cet article a plus de 48h et devrait être filtré.</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  <url>
+    <loc>https://www.lesechos.fr/economie/conjoncture/croissance-france-2026_1234567</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Les Échos</news:name>
+        <news:language>fr</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-03T07:00:00+02:00</news:publication_date>
+      <news:title>La croissance française surprend au deuxième trimestre</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://www.lesechos.fr/finance/marches/bourse-paris-hausse_1234568</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Les Échos</news:name>
+        <news:language>fr</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-03T06:30:00+02:00</news:publication_date>
+      <news:title>Bourse de Paris : le CAC 40 en hausse de 1,2%</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://www.lesechos.fr/tech/innovation/ia-europe-regulation_1234569</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Les Échos</news:name>
+        <news:language>fr</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-02T22:00:00+02:00</news:publication_date>
+      <news:title>Intelligence artificielle : l'Europe accélère sa régulation</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://www.lesechos.fr/ancien/article_old</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Les Échos</news:name>
+        <news:language>fr</news:language>
+      </news:publication>
+      <news:publication_date>2026-06-01</news:publication_date>
+      <news:title>Article ancien à filtrer</news:title>
+    </news:news>
+  </url>
+</urlset>

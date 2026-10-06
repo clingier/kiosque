@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>cnews.fr - Google Actualités</title>
+    <link>https://news.google.com</link>
+    <description>Google Actualités</description>
+    <item>
+      <title>Sécurité : le gouvernement annonce un plan d'urgence - CNews</title>
+      <link>https://www.cnews.fr/france/2026-07-03/securite-plan-urgence_1234567</link>
+      <pubDate>Thu, 03 Jul 2026 08:00:00 GMT</pubDate>
+      <source url="https://www.cnews.fr">CNews</source>
+    </item>
+    <item>
+      <title>Météo : des orages attendus dans le sud de la France - CNews</title>
+      <link>https://www.cnews.fr/meteo/2026-07-03/orages-sud-france_1234568</link>
+      <pubDate>Thu, 03 Jul 2026 07:00:00 GMT</pubDate>
+      <source url="https://www.cnews.fr">CNews</source>
+    </item>
+    <item>
+      <title>Sport : le PSG recrute un nouveau défenseur - CNews</title>
+      <link>https://www.cnews.fr/sport/2026-07-02/psg-recrutement_1234569</link>
+      <pubDate>Wed, 02 Jul 2026 18:00:00 GMT</pubDate>
+      <source url="https://www.cnews.fr">CNews</source>
+    </item>
+  </channel>
+</rss>
