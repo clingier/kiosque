@@ -59,3 +59,23 @@ def seed_stories(ctx, stories: list[dict]) -> None:
     rows = [(s["id"], s["title"], aid) for s in stories for aid in s["article_ids"]]
     df = ctx.spark.createDataFrame(rows, "story_id string, title string, article_id string")
     write_day(df.select(F.to_date(F.lit(ctx.run_date)).alias("run_date"), "story_id", "title", "article_id"), ctx, "silver", "stories")
+
+
+def seed_story_articles(ctx, stories: list[dict]) -> None:
+    from pyspark.sql import functions as F
+
+    from kiosque_pipeline.tables import write_day
+
+    seed_stories(ctx, [{"id": s["id"], "title": s["title"],
+                        "article_ids": [f"{s['id']}-{i}" for i in range(len(s["articles"]))]} for s in stories])
+    rows = [
+        (s["id"], f"{s['id']}-{i}", x["media"], x["title"], x["url"], x["date"], x["owner_group"], x["influence"])
+        for s in stories for i, x in enumerate(s["articles"])
+    ]
+    df = ctx.spark.createDataFrame(
+        rows, "story_id string, article_id string, media string, title string, url string, date string, owner_group string, influence string"
+    )
+    write_day(df.select(
+        F.to_date(F.lit(ctx.run_date)).alias("run_date"), "story_id", "article_id", "media", "title", "url",
+        F.try_to_timestamp("date", F.lit(TS)).alias("date"), "owner_group", "influence",
+    ), ctx, "silver", "story_articles")
