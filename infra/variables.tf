@@ -48,3 +48,8 @@ variable "alert_email" {
   description = "Email address that receives monitoring alerts"
   type        = string
 }
+
+variable "pipeline_principals" {
+  description = "Users or service principal application IDs that run the Databricks job (granted read/write on catalog kiosque)"
+  type        = list(string)
+}

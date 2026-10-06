@@ -10,3 +10,4 @@ enable_functions = false  # requires App Service VM quota
 enable_cdn      = false
 databricks_sku  = "premium"
 alert_email     = ""        # Receives monitoring alerts
+pipeline_principals = ["you@example.com"]  # Run the Databricks job (catalog grants)
