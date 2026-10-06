@@ -31,3 +31,10 @@ def test_scheduled_after_collector_and_alerts_on_failure():
 def test_every_task_installs_the_wheel():
     for task in JOB["tasks"]:
         assert {"whl": "./pipeline/dist/*.whl"} in task["libraries"]
+
+
+def test_prod_target_pins_a_shared_root_path():
+    # mode: production requires root_path; a shared path lets both a user and
+    # the CI service principal deploy the same single copy.
+    root_path = BUNDLE["targets"]["prod"]["workspace"]["root_path"]
+    assert root_path == "/Workspace/Shared/.bundle/${bundle.name}/${bundle.target}"
