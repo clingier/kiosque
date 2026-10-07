@@ -69,15 +69,13 @@ resource "azurerm_function_app_flex_consumption" "main" {
   maximum_instance_count = 40
   instance_memory_in_mb  = 2048
 
-  site_config {}
+  site_config {
+    application_insights_connection_string = azurerm_application_insights.main.connection_string
+  }
 
+  # AzureWebJobsStorage comes from the storage_* arguments above; App Insights
+  # from site_config. Setting them here too causes a permanent plan diff.
   app_settings = {
-    # Host storage (timer trigger leases)
-    AzureWebJobsStorage = azurerm_storage_account.functions[0].primary_connection_string
-
-    # Monitoring
-    APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.main.connection_string
-
     # Data-lake storage connection (the main ADLS account)
     DATALAKE_STORAGE_CONNECTION_STRING = azurerm_storage_account.main.primary_connection_string
     DATALAKE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.main.name
