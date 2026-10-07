@@ -6,6 +6,8 @@ needs every headline at once. The reference functions run unchanged inside it.
 Lineage keeps the bronze → silver edge; column lineage stops at the model.
 """
 
+import logging
+
 import pandas as pd
 
 from kiosque_pipeline.cluster import DEFAULT_DISTANCE_THRESHOLD, build_stories, cluster_labels
@@ -14,6 +16,8 @@ from kiosque_pipeline.embed import SentenceTransformerEmbedder
 from kiosque_pipeline.tables import read_day, write_day
 
 STORIES_SCHEMA = "run_date date, story_id string, title string, article_id string"
+
+logger = logging.getLogger(__name__)
 
 
 def _stories_for_day(embedder_factory, distance_threshold):
@@ -36,9 +40,14 @@ def run(
     distance_threshold: float = DEFAULT_DISTANCE_THRESHOLD,
 ) -> dict:
     articles = read_day(ctx, "bronze", "articles").select("run_date", "id", "media", "title", "url")
+    logger.info(
+        "Clustering %d articles for %s (distance threshold %.2f)", articles.count(), ctx.run_date, distance_threshold
+    )
     stories = articles.groupBy("run_date").applyInPandas(
         _stories_for_day(embedder_factory, distance_threshold), STORIES_SCHEMA
     )
     write_day(stories, ctx, "silver", "stories")
-    count = read_day(ctx, "silver", "stories").select("story_id").distinct().count()
+    stored = read_day(ctx, "silver", "stories")
+    count = stored.select("story_id").distinct().count()
+    logger.info("silver.stories holds %d stories covering %d articles", count, stored.count())
     return {"stories": count}

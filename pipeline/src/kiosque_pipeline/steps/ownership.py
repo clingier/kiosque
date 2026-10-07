@@ -4,10 +4,14 @@ steps/ownership.py — silver.stories + bronze.articles + ref.sources → silver
 A plain join, so UC column lineage links owner_group back to ref.sources.
 """
 
+import logging
+
 from pyspark.sql import functions as F
 
 from kiosque_pipeline.context import JobContext
 from kiosque_pipeline.tables import read_day, table, write_day
+
+logger = logging.getLogger(__name__)
 
 
 def run(ctx: JobContext) -> dict:
@@ -22,5 +26,7 @@ def run(ctx: JobContext) -> dict:
         "run_date", "story_id", "article_id", "media", "title", "url", "date", "owner_group", "influence"
     )
     write_day(story_articles, ctx, "silver", "story_articles")
-    count = read_day(ctx, "silver", "story_articles").select("story_id").distinct().count()
+    stored = read_day(ctx, "silver", "story_articles")
+    count = stored.select("story_id").distinct().count()
+    logger.info("silver.story_articles holds %d articles across %d stories", stored.count(), count)
     return {"stories": count}

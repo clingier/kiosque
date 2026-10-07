@@ -60,7 +60,7 @@ def main():
         spark.stop()
 
     print(json.dumps(result, indent=2))
-    print(f"\n📁 Snapshot: {args.output}/$web/snapshot.json")
+    print(f"\nSnapshot: {args.output}/$web/snapshot.json")
 
 
 if __name__ == "__main__":

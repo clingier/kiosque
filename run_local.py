@@ -60,7 +60,7 @@ def main():
 
         collector_module.load_sources = limited_load
 
-    print(f"\n🗞️  Kiosque — Local Collection Run")
+    print(f"\nKiosque — Local Collection Run")
     print(f"   Sources: {args.sources}")
     print(f"   Output:  {args.output}")
     if args.limit:
@@ -71,14 +71,14 @@ def main():
 
     # Print summary
     print(f"\n{'='*60}")
-    print(f"📊 Collection Report")
+    print(f"Collection Report")
     print(f"{'='*60}")
     print(f"   Date:           {report['date']}")
     print(f"   Duration:       {report['duration_seconds']}s")
     print(f"   Total sources:  {report['total_sources']}")
-    print(f"   ✅ Success:     {report['success_count']}")
-    print(f"   ❌ Failures:    {report['failure_count']}")
-    print(f"   📰 Articles:    {report['total_articles']}")
+    print(f"   Success:        {report['success_count']}")
+    print(f"   Failures:       {report['failure_count']}")
+    print(f"   Articles:       {report['total_articles']}")
     print()
 
     # Print per-source details
@@ -86,16 +86,16 @@ def main():
     err_sources = [s for s in report["sources"] if s["status"] == "error"]
 
     if ok_sources:
-        print(f"✅ Successful sources ({len(ok_sources)}):")
+        print(f"Successful sources ({len(ok_sources)}):")
         for s in sorted(ok_sources, key=lambda x: x["article_count"], reverse=True):
             print(f"   {s['slug']:30s} {s['source_method']:8s} {s['article_count']:4d} articles  ({s['duration_ms']}ms)")
 
     if err_sources:
-        print(f"\n❌ Failed sources ({len(err_sources)}):")
+        print(f"\nFailed sources ({len(err_sources)}):")
         for s in err_sources:
             print(f"   {s['slug']:30s} {s.get('error', 'Unknown error')}")
 
-    print(f"\n📁 Output written to: {args.output}/raw/feeds/{report['date']}/")
+    print(f"\nOutput written to: {args.output}/raw/feeds/{report['date']}/")
 
 
 if __name__ == "__main__":

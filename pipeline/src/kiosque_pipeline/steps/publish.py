@@ -9,6 +9,7 @@ live snapshot.
 """
 
 import json
+import logging
 from datetime import datetime, timezone
 
 from pyspark.sql import DataFrame
@@ -23,6 +24,8 @@ TS = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 CACHE_LATEST = "public, max-age=300"
 CACHE_ARCHIVE = "public, max-age=86400"
 JSON_OPTIONS = {"ignoreNullFields": "false"}
+
+logger = logging.getLogger(__name__)
 
 
 def _by(field: str):
@@ -103,12 +106,20 @@ def run(ctx: JobContext, now: datetime | None = None) -> dict:
         raise RuntimeError(f"no gold data to publish for {ctx.run_date}")
     document = json.loads(row["snapshot_json"])
     validate(document)
+    logger.info(
+        "Snapshot for %s validated: %d stories, %d bytes, generated_at %s",
+        ctx.run_date, len(document["stories"]), len(row["snapshot_json"]), generated_at,
+    )
 
     write_day(frame, ctx, "gold", "snapshots")
     published = [table(ctx, "gold", "snapshots")]
     ctx.storage.write_text(layers.web_archive(ctx.run_date), row["snapshot_json"], cache_control=CACHE_ARCHIVE)
     published.append(layers.web_archive(ctx.run_date))
+    logger.info("Uploaded %s", layers.web_archive(ctx.run_date))
     if not _live_snapshot_is_newer(ctx):
         ctx.storage.write_text(layers.WEB_LATEST, row["snapshot_json"], cache_control=CACHE_LATEST)
         published.append(layers.WEB_LATEST)
+        logger.info("Uploaded %s", layers.WEB_LATEST)
+    else:
+        logger.info("Kept live %s: it is newer than %s (backfill)", layers.WEB_LATEST, ctx.run_date)
     return {"stories": len(document["stories"]), "published": published}

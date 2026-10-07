@@ -6,12 +6,16 @@ is its own owner for HHI; dominant group by distinct media (ties → group id as
 blind spots against ref.groups.major. bround() matches Python's round().
 """
 
+import logging
+
 from pyspark.sql import Window
 from pyspark.sql import functions as F
 
 from kiosque_pipeline.context import JobContext
 from kiosque_pipeline.metrics import INDEPENDANT, MIN_MEDIA_IGNORED_BY_MAJORS
 from kiosque_pipeline.tables import read_day, table, write_day
+
+logger = logging.getLogger(__name__)
 
 
 def _story_metrics(ctx: JobContext):
@@ -110,4 +114,8 @@ def run(ctx: JobContext) -> dict:
     write_day(_story_metrics(ctx), ctx, "gold", "story_metrics")
     write_day(_day_kpis(ctx), ctx, "gold", "day_kpis")
     row = read_day(ctx, "gold", "day_kpis").first()
+    logger.info(
+        "Day KPIs for %s: %d articles from %d media, %d stories, %d blind spots, median HHI %s",
+        ctx.run_date, row["articles"], row["media"], row["stories"], row["blind_spots"], row["median_hhi"],
+    )
     return {"stories": row["stories"], "blind_spots": row["blind_spots"]}
