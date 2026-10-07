@@ -29,14 +29,14 @@ Le site est consultable vers 06h45.
 
 ```
 Sources RSS ──► Azure Functions ──► ADLS Gen2 ──► Databricks ──► snapshot.json ──► Blob Static Website ──► CDN
-                (collecte)          (medallion)    (6 notebooks)   (gold)           ($web container)
+                (collecte)          (medallion)    (6 tâches)     (gold)           ($web container)
 ```
 
 | Composant | Service | Détail |
 |-----------|---------|--------|
-| Ingestion | Azure Functions (Consumption, Python) | Timer trigger, ~65 sources, async |
+| Ingestion | Azure Functions (Flex Consumption, Python 3.12) | Timer trigger, ~65 sources, async |
 | Stockage | ADLS Gen2 | Medallion : raw → bronze → silver → gold |
-| Traitement | Databricks Workflow + Unity Catalog | 6 notebooks Spark (DBR 18 LTS ML), tables Delta gérées dans le catalogue kiosque, lignage de raw à gold |
+| Traitement | Databricks Workflow + Unity Catalog | 6 tâches Spark sur compute serverless (entry point `kiosque-step`), tables Delta gérées dans le catalogue kiosque, lignage de raw à gold |
 | Frontend | Azure Blob Static Website + CDN | Fichier HTML unique, routing CSS pur, 0 build step |
 | Monitoring | Application Insights | Alertes : workflow échoué, sources en erreur, snapshot périmé |
 
@@ -59,7 +59,6 @@ kiosque/
 │   │   ├── normalize.py  cluster.py  ownership.py  metrics.py  publish.py
 │   │   └── snapshot.schema.json   # Contrat snapshot.json (frontend)
 │   └── tests/
-├── notebooks/              # 00_ref … 05_publish (wrappers Databricks)
 ├── frontend/               # kiosque.html (à venir)
 ├── config/
 │   ├── sources.yaml        # Médias, flux, groupe propriétaire

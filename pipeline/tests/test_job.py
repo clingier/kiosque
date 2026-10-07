@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 import pytest
 
 from kiosque_pipeline import job
-from conftest import REPO_ROOT
 
 
 def test_resolve_run_date_defaults_to_today_utc():
@@ -19,44 +18,3 @@ def test_resolve_run_date_accepts_explicit_date():
 def test_resolve_run_date_rejects_garbage():
     with pytest.raises(ValueError):
         job.resolve_run_date("06/10/2026", datetime.now(timezone.utc))
-
-
-class FakeDbutils:
-    class widgets:
-        values = {"run_date": "2026-10-01", "config_dir": str(REPO_ROOT / "config"), "catalog": "kiosque"}
-
-        @classmethod
-        def get(cls, name):
-            return cls.values[name]
-
-    class secrets:
-        @staticmethod
-        def get(scope, key):
-            assert (scope, key) == ("kiosque", "datalake-connection-string")
-            return "conn-string"
-
-
-class FakeSpark:
-    class conf:
-        values = {}
-
-        @classmethod
-        def set(cls, key, value):
-            cls.values[key] = value
-
-
-def test_job_context_without_web(monkeypatch):
-    monkeypatch.setattr(job, "BlobStorage", lambda conn: pytest.fail("no storage expected"))
-    ctx = job.job_context(FakeDbutils, FakeSpark)
-    assert ctx.run_date == "2026-10-01"
-    assert ctx.catalog == "kiosque"
-    assert ctx.raw_root == "/Volumes/kiosque/raw/feeds"
-    assert ctx.storage is None
-    assert ctx.spark is FakeSpark
-    assert FakeSpark.conf.values["spark.sql.session.timeZone"] == "UTC"
-    assert len(ctx.major_groups) == 6
-
-
-def test_job_context_with_web(monkeypatch):
-    monkeypatch.setattr(job, "BlobStorage", lambda conn: ("blob", conn))
-    assert job.job_context(FakeDbutils, FakeSpark, web=True).storage == ("blob", "conn-string")

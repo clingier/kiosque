@@ -19,12 +19,12 @@ output "static_website_url" {
 
 output "function_app_name" {
   description = "Name of the Function App"
-  value       = var.enable_functions ? azurerm_linux_function_app.main[0].name : null
+  value       = var.enable_functions ? azurerm_function_app_flex_consumption.main[0].name : null
 }
 
 output "function_app_default_hostname" {
   description = "Default hostname (URL) of the Function App"
-  value       = var.enable_functions ? azurerm_linux_function_app.main[0].default_hostname : null
+  value       = var.enable_functions ? azurerm_function_app_flex_consumption.main[0].default_hostname : null
 }
 
 output "databricks_workspace_url" {

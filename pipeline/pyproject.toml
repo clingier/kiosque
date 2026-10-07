@@ -15,6 +15,9 @@ dependencies = [
     "azure-storage-blob>=12.19.0",
 ]
 
+[project.scripts]
+kiosque-step = "kiosque_pipeline.cli:main"
+
 [project.optional-dependencies]
 embed = ["sentence-transformers>=2.7"]
 dev = ["pytest>=8", "build>=1.2"]

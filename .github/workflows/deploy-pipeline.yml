@@ -8,7 +8,6 @@ on:
     branches: [main]
     paths:
       - "pipeline/**"
-      - "notebooks/**"
       - "config/**"
       - "databricks.yml"
   workflow_dispatch:

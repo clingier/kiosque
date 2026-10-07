@@ -27,7 +27,7 @@ variable "environment" {
 }
 
 variable "enable_functions" {
-  description = "Whether to provision Function App (requires App Service VM quota)"
+  description = "Whether to provision the collector Function App (Flex Consumption)"
   type        = bool
   default     = false
 }

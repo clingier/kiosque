@@ -16,13 +16,14 @@ artifacts:
 sync:
   include:
     - config/*.yaml
-    - notebooks/*.py
 
 resources:
   jobs:
     kiosque_daily:
       name: kiosque-daily
       max_concurrent_runs: 1
+      # Serverless jobs compute: no Azure VM quota needed; STANDARD = cost-efficient mode.
+      performance_target: STANDARD
       schedule:
         quartz_cron_expression: "0 20 6 * * ?"
         timezone_id: UTC
@@ -36,67 +37,60 @@ resources:
           default: ${workspace.file_path}/config
         - name: catalog
           default: kiosque
-      job_clusters:
-        - job_cluster_key: single_node
-          new_cluster:
-            spark_version: 18.x-cpu-ml-scala2.13
-            node_type_id: Standard_D4ds_v5
-            num_workers: 0
-            data_security_mode: SINGLE_USER
-            spark_conf:
-              spark.master: "local[*, 4]"
-              spark.databricks.cluster.profile: singleNode
-            custom_tags:
-              ResourceClass: SingleNode
+      environments:
+        - environment_key: pipeline
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ./pipeline/dist/*.whl
+              - sentence-transformers>=2.7
       tasks:
         - task_key: ref
-          job_cluster_key: single_node
-          notebook_task:
-            notebook_path: ./notebooks/00_ref.py
-          libraries:
-            - whl: ./pipeline/dist/*.whl
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "ref", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
         - task_key: normalize
           depends_on:
             - task_key: ref
-          job_cluster_key: single_node
-          notebook_task:
-            notebook_path: ./notebooks/01_normalize.py
-          libraries:
-            - whl: ./pipeline/dist/*.whl
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "normalize", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
         - task_key: cluster
           depends_on:
             - task_key: normalize
-          job_cluster_key: single_node
-          notebook_task:
-            notebook_path: ./notebooks/02_cluster.py
-          libraries:
-            - whl: ./pipeline/dist/*.whl
-            - pypi:
-                package: sentence-transformers>=2.7
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "cluster", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
         - task_key: ownership
           depends_on:
             - task_key: cluster
-          job_cluster_key: single_node
-          notebook_task:
-            notebook_path: ./notebooks/03_ownership.py
-          libraries:
-            - whl: ./pipeline/dist/*.whl
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "ownership", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
         - task_key: metrics
           depends_on:
             - task_key: ownership
-          job_cluster_key: single_node
-          notebook_task:
-            notebook_path: ./notebooks/04_metrics.py
-          libraries:
-            - whl: ./pipeline/dist/*.whl
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "metrics", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
         - task_key: publish
           depends_on:
             - task_key: metrics
-          job_cluster_key: single_node
-          notebook_task:
-            notebook_path: ./notebooks/05_publish.py
-          libraries:
-            - whl: ./pipeline/dist/*.whl
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "publish", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
 
 targets:
   prod:
