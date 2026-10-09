@@ -6,6 +6,10 @@ subscription_id = ""        # Your Azure subscription ID
 project_name    = "kiosque"
 location        = "northeurope"
 environment     = "prod"
-enable_functions = false  # requires App Service VM quota
+enable_functions = true   # collector Function App (Flex Consumption)
 enable_cdn      = false
 databricks_sku  = "premium"
+alert_email     = ""        # Receives monitoring alerts
+# Who runs the Databricks job (emails or SP application GUIDs). AUTHORITATIVE catalog grants:
+# anyone left out loses access. CI reads it from secret PIPELINE_PRINCIPALS as a JSON list.
+pipeline_principals = ["you@example.com"]

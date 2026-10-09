@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "DATALAKE_STORAGE_CONNECTION_STRING": "",
+    "DATALAKE_STORAGE_ACCOUNT_NAME": "",
+    "CONTAINER_RAW": "raw",
+    "CONTAINER_BRONZE": "bronze",
+    "CONTAINER_SILVER": "silver",
+    "CONTAINER_GOLD": "gold",
+    "LOCAL_OUTPUT_DIR": "./output"
+  }
+}

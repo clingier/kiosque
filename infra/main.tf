@@ -10,6 +10,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    databricks = {
+      source  = "databricks/databricks"
+      version = "~> 1.0"
+    }
   }
 
   backend "azurerm" {
@@ -31,6 +35,11 @@ provider "azurerm" {
   }
 
   subscription_id = var.subscription_id
+}
+
+provider "databricks" {
+  host      = "https://${azurerm_databricks_workspace.main.workspace_url}"
+  auth_type = "azure-cli"
 }
 
 # ---------------------------------------------------------------------

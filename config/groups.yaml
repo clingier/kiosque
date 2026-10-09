@@ -1,0 +1,33 @@
+# =============================================================================
+# groups.yaml — Groupes propriétaires suivis par Kiosque
+#
+#   id    : valeur de owner_group dans sources.yaml
+#   label : nom d'affichage
+#   major : true pour les six groupes industriels nommés
+#           (utilisé pour la détection « ignoré par les grands groupes »)
+# =============================================================================
+
+- id: bollore
+  label: Bolloré / Vivendi
+  major: true
+- id: niel
+  label: Niel / Le Monde
+  major: true
+- id: bouygues
+  label: Bouygues / TF1
+  major: true
+- id: arnault
+  label: Arnault / LVMH
+  major: true
+- id: kretinsky
+  label: Kretinsky
+  major: true
+- id: saade
+  label: Saadé / CMA CGM
+  major: true
+- id: public
+  label: Service public
+  major: false
+- id: independant
+  label: Indépendant
+  major: false

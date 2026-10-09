@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Ouest-France</title>
+    <link>https://www.ouest-france.fr</link>
+    <description>Ouest-France - Actualités</description>
+    <item>
+      <title>Bretagne : un festival de musique bat son record de fréquentation</title>
+      <link>https://www.ouest-france.fr/bretagne/festival-musique-record_2026.html</link>
+      <pubDate>03 Jul 2026 08:00:00</pubDate>
+    </item>
+    <item>
+      <title>Agriculture : les moissons débutent avec deux semaines d'avance</title>
+      <link>https://www.ouest-france.fr/economie/agriculture-moissons-avance_2026.html</link>
+      <pubDate>02 Jul 2026 16:30:00</pubDate>
+    </item>
+    <item>
+      <title>Nantes : le nouveau tramway entre en service</title>
+      <link>https://www.ouest-france.fr/pays-de-la-loire/nantes/tramway-service_2026.html</link>
+      <pubDate>02 Jul 2026 12:00:00</pubDate>
+    </item>
+  </channel>
+</rss>

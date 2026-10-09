@@ -1,0 +1,104 @@
+# Databricks Asset Bundle — Kiosque daily processing job.
+# Deploy:  DATABRICKS_HOST=https://<workspace-url> databricks bundle deploy -t prod --var alert_email=<email>
+bundle:
+  name: kiosque
+
+variables:
+  alert_email:
+    description: Address notified when the daily job fails
+
+artifacts:
+  pipeline_wheel:
+    type: whl
+    path: ./pipeline
+    # build/ is cleared first: setuptools otherwise reuses stale modules from an earlier build.
+    build: rm -rf build dist && python -m build --wheel
+    # Stamp a unique version on every deploy: the wheel is always 0.1.0, and serverless
+    # environments otherwise keep reinstalling the cached copy.
+    dynamic_version: true
+
+sync:
+  include:
+    - config/*.yaml
+
+resources:
+  jobs:
+    kiosque_daily:
+      name: kiosque-daily
+      max_concurrent_runs: 1
+      # Serverless jobs compute: no Azure VM quota needed; STANDARD = cost-efficient mode.
+      performance_target: STANDARD
+      schedule:
+        quartz_cron_expression: "0 20 6 * * ?"
+        timezone_id: UTC
+      email_notifications:
+        on_failure:
+          - ${var.alert_email}
+      parameters:
+        - name: run_date
+          default: ""
+        - name: config_dir
+          default: ${workspace.file_path}/config
+        - name: catalog
+          default: kiosque
+      environments:
+        - environment_key: pipeline
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ./pipeline/dist/*.whl
+              - sentence-transformers>=2.7
+      tasks:
+        - task_key: ref
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "ref", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
+        - task_key: normalize
+          depends_on:
+            - task_key: ref
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "normalize", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
+        - task_key: cluster
+          depends_on:
+            - task_key: normalize
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "cluster", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
+        - task_key: ownership
+          depends_on:
+            - task_key: cluster
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "ownership", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
+        - task_key: metrics
+          depends_on:
+            - task_key: ownership
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "metrics", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
+        - task_key: publish
+          depends_on:
+            - task_key: metrics
+          environment_key: pipeline
+          python_wheel_task:
+            package_name: kiosque_pipeline
+            entry_point: kiosque-step
+            parameters: ["--step", "publish", "--run-date", "{{job.parameters.run_date}}", "--catalog", "{{job.parameters.catalog}}", "--config-dir", "{{job.parameters.config_dir}}"]
+
+targets:
+  prod:
+    mode: production
+    default: true
+    workspace:
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}

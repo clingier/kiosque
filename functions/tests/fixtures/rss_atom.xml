@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>France Info - Actualités</title>
+  <link href="https://www.francetvinfo.fr/" rel="alternate"/>
+  <link href="https://www.francetvinfo.fr/titres.rss" rel="self"/>
+  <id>urn:uuid:france-info-feed</id>
+  <updated>2026-07-03T08:00:00+02:00</updated>
+  <entry>
+    <title>Réforme des retraites : le Conseil constitutionnel rend sa décision</title>
+    <link href="https://www.francetvinfo.fr/politique/reforme-retraites-decision_1111111.html" rel="alternate"/>
+    <id>urn:uuid:entry-1111111</id>
+    <updated>2026-07-03T07:00:00+02:00</updated>
+    <summary>Le Conseil constitutionnel a validé l'essentiel de la réforme.</summary>
+    <author>
+      <name>France Info</name>
+    </author>
+  </entry>
+  <entry>
+    <title>Tour de France 2026 : le parcours dévoilé</title>
+    <link href="https://www.francetvinfo.fr/sport/tour-de-france-parcours_1111112.html" rel="alternate"/>
+    <id>urn:uuid:entry-1111112</id>
+    <updated>2026-07-02T18:30:00+02:00</updated>
+    <summary>Le parcours du Tour de France 2026 a été officiellement annoncé.</summary>
+  </entry>
+</feed>

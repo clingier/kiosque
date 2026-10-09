@@ -1,0 +1,10 @@
+# Exclude files not needed in the Azure Function deployment
+.venv/
+tests/
+__pycache__/
+*.pyc
+local.settings.json
+local.settings.json.example
+.git/
+.gitignore
+output/

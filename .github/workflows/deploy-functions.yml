@@ -1,0 +1,45 @@
+######################################################################
+# deploy-functions.yml – Publish the collector Function App on merge to main
+######################################################################
+name: "Deploy Functions"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "functions/**"
+      - "config/sources.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-functions
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package sources.yaml with the Function App
+        run: mkdir -p functions/config && cp config/sources.yaml functions/config/sources.yaml
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      - name: Deploy
+        uses: Azure/functions-action@v1
+        with:
+          app-name: func-kiosque-prod
+          package: functions
+          sku: flexconsumption
+          remote-build: true

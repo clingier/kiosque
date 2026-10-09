@@ -27,7 +27,7 @@ variable "environment" {
 }
 
 variable "enable_functions" {
-  description = "Whether to provision Function App (requires App Service VM quota)"
+  description = "Whether to provision the collector Function App (Flex Consumption)"
   type        = bool
   default     = false
 }
@@ -42,4 +42,22 @@ variable "databricks_sku" {
   description = "Databricks workspace SKU (premium required for Workflows)"
   type        = string
   default     = "premium"
+}
+
+variable "alert_email" {
+  description = "Email address that receives monitoring alerts"
+  type        = string
+}
+
+variable "pipeline_principals" {
+  description = "Users (email) or service principal application IDs (GUID) that run the Databricks job. AUTHORITATIVE: anyone not listed loses their grants on catalog kiosque. In CI, set secret PIPELINE_PRINCIPALS to a JSON list, e.g. [\"you@example.com\"]."
+  type        = list(string)
+
+  validation {
+    condition = length(var.pipeline_principals) > 0 && alltrue([
+      for p in var.pipeline_principals :
+      can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", p)) || can(regex("^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$", p))
+    ])
+    error_message = "pipeline_principals must list at least one user email or service principal application ID (GUID). The catalog grants are authoritative, so a missing or malformed entry would revoke access."
+  }
 }

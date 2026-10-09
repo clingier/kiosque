@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Le Figaro - Actualité</title>
+    <link>https://www.lefigaro.fr</link>
+    <description>Le Figaro - Actualité en direct et informations en continu</description>
+    <item>
+      <title><![CDATA[Gouvernement : Macron cherche une <b>issue</b> à la crise]]></title>
+      <link>https://www.lefigaro.fr/politique/gouvernement-macron-crise_2026.html</link>
+      <pubDate>Thu, 03 Jul 2026 06:00:00 +0200</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Immobilier : les prix repartent à la hausse en Île-de-France]]></title>
+      <link>https://www.lefigaro.fr/immobilier/prix-hausse-idf_2026.html</link>
+      <pubDate>Wed, 02 Jul 2026 20:00:00 +0200</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[L&#39;art de vivre à la française séduit l&#39;étranger]]></title>
+      <link>https://www.lefigaro.fr/culture/art-de-vivre_2026.html</link>
+      <pubDate>Wed, 02 Jul 2026 15:00:00 +0200</pubDate>
+    </item>
+  </channel>
+</rss>
