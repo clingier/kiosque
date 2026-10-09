@@ -11,7 +11,11 @@ artifacts:
   pipeline_wheel:
     type: whl
     path: ./pipeline
-    build: python -m build --wheel
+    # build/ is cleared first: setuptools otherwise reuses stale modules from an earlier build.
+    build: rm -rf build dist && python -m build --wheel
+    # Stamp a unique version on every deploy: the wheel is always 0.1.0, and serverless
+    # environments otherwise keep reinstalling the cached copy.
+    dynamic_version: true
 
 sync:
   include:

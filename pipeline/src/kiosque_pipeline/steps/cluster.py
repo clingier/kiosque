@@ -1,9 +1,10 @@
 """
 steps/cluster.py — bronze.articles → silver.stories.
 
-The whole day goes to one applyInPandas call because agglomerative clustering
-needs every headline at once. The reference functions run unchanged inside it.
-Lineage keeps the bronze → silver edge; column lineage stops at the model.
+Agglomerative clustering needs every headline at once, and a day is a few thousand
+rows, so the day is collected and embedded on the driver. A Python UDF would run the
+model in a Spark Python worker, which serverless compute caps at far less memory
+than torch plus the model need: the worker is killed and the stage aborts.
 """
 
 import logging
@@ -22,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 def _stories_for_day(embedder_factory, distance_threshold):
     def fn(pdf: pd.DataFrame) -> pd.DataFrame:
+        if pdf.empty:
+            return pd.DataFrame(columns=["run_date", "story_id", "title", "article_id"])
         pdf = pdf.sort_values(["media", "url"])
         articles = pdf[["id", "media", "title"]].to_dict("records")
         run_date = pdf["run_date"].iloc[0]
@@ -43,9 +46,9 @@ def run(
     logger.info(
         "Clustering %d articles for %s (distance threshold %.2f)", articles.count(), ctx.run_date, distance_threshold
     )
-    stories = articles.groupBy("run_date").applyInPandas(
-        _stories_for_day(embedder_factory, distance_threshold), STORIES_SCHEMA
-    )
+    stories_pdf = _stories_for_day(embedder_factory, distance_threshold)(articles.toPandas())
+    logger.info("Embedded and clustered on the driver into %d story rows", len(stories_pdf))
+    stories = ctx.spark.createDataFrame(stories_pdf, STORIES_SCHEMA)
     write_day(stories, ctx, "silver", "stories")
     stored = read_day(ctx, "silver", "stories")
     count = stored.select("story_id").distinct().count()
